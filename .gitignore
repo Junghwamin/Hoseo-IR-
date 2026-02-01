@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Output (generated files)
+**/output/*.xlsx
+**/output/*.csv
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Claude Code / OMC
+.claude/
+.omc/
+
+# OS
+Thumbs.db
+.DS_Store
