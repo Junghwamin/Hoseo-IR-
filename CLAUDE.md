@@ -1,0 +1,191 @@
+# 호서대학교 IR센터 보고서 자동생성 앱
+
+## 프로젝트 개요
+
+호서대학교 IR센터에서 전임교원 연구실적 데이터(대학알리미)를 자동으로 분석하고
+GPT-4o + matplotlib + python-docx를 사용하여 Word 보고서를 자동 생성하는 Streamlit 앱.
+
+---
+
+## 실행 방법
+
+```bash
+# 의존성 설치 (최초 1회)
+pip install -r requirements.txt
+
+# Streamlit 앱 실행 (프로젝트 루트에서 실행 필수)
+cd "C:\Users\정화민\Desktop\IR센터 MCP"
+streamlit run report_app/app.py
+```
+
+브라우저에서 http://localhost:8501 접속.
+
+---
+
+## 전체 워크플로우 (앱 내 5단계)
+
+```
+1단계: 전처리·데이터 설정
+  [🔧 원시 데이터 전처리] 탭
+    → 대학알리미 xlsx 업로드 → Raw data/ 저장 → [⚙️ 전처리 실행]
+    → output/CSV 자동 생성 후 데이터 로드
+  [📂 전처리 결과 CSV 업로드] 탭
+    → 이미 전처리된 CSV 2개 직접 업로드
+  [📁 기존 output/ 폴더 사용] 탭
+    → 기존 CSV 파일 바로 사용
+
+2단계: 통계 확인
+  → 요약 카드, 연도별 수치표, 비교군 표, 전년대비 증감 검토
+
+3단계: 그래프 검토
+  → 5종 차트 탭별 확인 (PNG 개별 저장 가능)
+
+4단계: GPT 서술 생성 및 편집
+  → 섹션별 [🤖 GPT 생성] 버튼 → text_area에서 직접 편집
+
+5단계: 보고서 생성
+  → [Word 보고서 생성] → [⬇️ 다운로드]
+```
+
+---
+
+## 주요 파일 구조 및 역할
+
+| 파일 | 역할 |
+|------|------|
+| `전임교원_연구실적_전처리.py` | Raw Excel → CSV 변환 (앱 내에서도 호출됨) |
+| `report_app/config.py` | 대학명, 비교군, 경로, GPT 설정 상수 |
+| `report_app/data_loader.py` | CSV 로드 + 통계 계산 6개 함수 |
+| `report_app/chart_generator.py` | matplotlib 그래프 5종 → BytesIO 반환 |
+| `report_app/gpt_reporter.py` | OpenAI API 호출, 섹션별 서술 4종 생성 |
+| `report_app/report_builder.py` | python-docx Word 보고서 5개 섹션 조립 |
+| `report_app/app.py` | Streamlit 메인 앱 (5단계 step-by-step) |
+| `.env` | OPENAI_API_KEY 저장 (git 제외 대상) |
+| `output/reports/` | 생성된 Word 파일 저장 위치 |
+| `Raw data/` | 대학알리미 원본 xlsx 파일 저장 위치 |
+
+---
+
+## 데이터 구조
+
+### `output/충청권_순위.csv`
+```
+연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 충청권순위, 전국순위
+```
+
+### `output/전체_대학_데이터.csv`
+```
+연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 전국순위
+```
+
+- 인코딩: UTF-8 with BOM (utf-8-sig)
+- 연도 범위: 2023~2025 (전처리 실행 시 자동 갱신)
+- Raw 파일명 규칙: 파일명에 연도 포함 필수 → `2024년_전임교원.xlsx`
+
+---
+
+## 비교 대학군 (config.py 에서 수정)
+
+천안·아산 5개 대학:
+- 순천향대학교, 선문대학교, 한서대학교, 나사렛대학교, **호서대학교**
+
+---
+
+## 환경 설정
+
+### .env 파일 (사이드바에서 저장 가능)
+```
+OPENAI_API_KEY=sk-실제_API_키_입력
+```
+앱 사이드바에서 API Key 입력 후 [💾 저장] 클릭 시 .env에 자동 저장됨.
+
+### GPT 설정 (config.py)
+- 모델: GPT-4o (`GPT_MODEL`)
+- max_tokens: 2000
+- temperature: 0.4
+
+---
+
+## 생성 보고서 구조
+
+| 섹션 | 내용 |
+|------|------|
+| 표지 | 대학명, 제목, 기준연도, 생성일 |
+| 1. 연도별 추이 | GPT 서술 + 수치표 + 라인차트 |
+| 2. 평균 비교 | GPT 서술 + 수평 바차트 |
+| 3. 충청권 비교 | GPT 서술 + 막대차트 + 순위변화차트 |
+| 4. 비교군 현황 | 5개교 비교표 + 막대차트 |
+| 5. 전년대비 증감 | GPT 서술 + 증감 상위/하위 표 |
+
+---
+
+## 트러블슈팅
+
+### 한글 폰트 깨짐 (matplotlib)
+```python
+matplotlib.rcParams["font.family"] = "Malgun Gothic"
+matplotlib.rcParams["axes.unicode_minus"] = False
+```
+Windows 기준. Linux 배포 시 `NanumGothic` 등으로 변경.
+
+### CSV 인코딩 오류
+- `pd.read_csv(..., encoding="utf-8-sig")` 사용 (BOM 처리)
+
+### OpenAI API 오류
+- GPT-4o 미사용 계정: `config.py`의 `GPT_MODEL = "gpt-4"` 로 변경
+
+### Streamlit 실행 오류
+- 반드시 프로젝트 루트(`IR센터 MCP/`)에서 실행해야 상대경로 정상 동작
+
+### CSS 적용 시 주의사항 (v3.0)
+- Streamlit CSS 우선순위 때문에 `!important` 필수
+- 사이드바 색상: `[data-testid="stSidebar"] *` 로 하위 전체 타겟
+- 메트릭 카드: `[data-testid="stMetric"]`, `[data-testid="stMetricValue"]` 사용
+- 버튼 종류 구분: `button[kind="primary"]` vs `:not([kind="primary"])`
+- 탭 패널: `[data-baseweb="tab-panel"]` 로 탭 내용 배경색 변경 가능
+
+### Streamlit text_area + GPT 버튼 연동 (중요)
+- `key=`가 있는 text_area에 `value=`를 함께 쓰면 GPT 결과가 화면에 반영 안 됨
+- 해결: text_area에 `key="narrative_*"` 만 사용, GPT 결과 저장 후 `st.rerun()` 호출
+- narrative 키가 곧 text_area 위젯 키 → session_state 하나로 통합 관리
+
+### 전처리 스크립트 앱 내 호출
+- `importlib.util.spec_from_file_location` 으로 한글 파일명 동적 임포트
+- `contextlib.redirect_stdout` 으로 전처리 로그를 앱 화면에 표시
+
+---
+
+## 향후 지표 추가 방법 (교육비환원율 등)
+
+`report_app/indicators/` 폴더에 동일 인터페이스로 모듈 추가:
+```python
+# indicators/education_cost.py
+def get_stats() -> dict: ...
+def get_charts() -> dict[str, BytesIO]: ...
+def get_narrative(client: OpenAI) -> dict[str, str]: ...
+```
+`app.py` 사이드바에 지표 선택 라디오버튼 추가 후 해당 모듈 호출.
+
+---
+
+## 작업 로그
+
+| 날짜 | 내용 |
+|------|------|
+| 2026-02-23 | 초기 구현: report_app/ 전체 모듈 6개 파일 (config, data_loader, chart_generator, gpt_reporter, report_builder, app) |
+| 2026-02-23 | app.py v2: 5단계 step-by-step 워크플로우로 전면 재설계, API Key .env 영구 저장, 데이터 파일 업로드 기능 |
+| 2026-02-23 | 4단계 GPT 서술 버그 수정: text_area key 충돌 → st.rerun() 방식으로 변경 |
+| 2026-02-23 | 1단계에 전처리 탭 추가: Raw xlsx 업로드 → 앱 내 전처리 실행 → CSV 자동 생성 |
+| 2026-02-23 | 수정: `config.py` |
+| 2026-02-23 | 신규 생성: `syntax_check.py` |
+| 2026-02-23 | 신규 생성: `auto_pip_install.py` |
+| 2026-02-23 | 신규 생성: `session_end_summary.py` |
+| 2026-02-23 | 신규 생성: `import_check.py` |
+| 2026-02-23 | 신규 생성: `dependency_check.py` |
+| 2026-02-23 | 신규 생성: `smoke_test.py` |
+| 2026-02-23 | 수정: `smoke_test.py` |
+| 2026-02-23 | 신규 생성: `app.py` |
+| 2026-02-23 | app.py v3.0: 전면 UI/UX 리디자인 — 딥블루 디자인 시스템, 헤더 배너, 원형 스텝 인디케이터, 사이드바 네이비 테마, 섹션 타이틀 카드, GPT 섹션 헤더+뱃지, 메트릭 카드 hover 효과 |
+| 2026-02-23 | 신규 생성: `backup_on_edit.py` |
+| 2026-02-23 | 수정: `log_change.py` |
+| 2026-02-23 | 수정: `app.py` |

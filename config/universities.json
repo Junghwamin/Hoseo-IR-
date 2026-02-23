@@ -1,0 +1,605 @@
+{
+  "description": "전체 대학 리스트 및 캠퍼스 매핑. aliases에 있는 이름들은 name으로 합산됨. is_branch=true인 항목은 분교로서 별도 대학 취급.",
+  "universities": [
+    {
+      "name": "금강대학교",
+      "aliases": []
+    },
+    {
+      "name": "가톨릭꽃동네대학교",
+      "aliases": []
+    },
+    {
+      "name": "을지대학교",
+      "aliases": [
+        "을지대학교_제2캠퍼스",
+        "을지대학교_제3캠퍼스"
+      ]
+    },
+    {
+      "name": "건국대학교(글로컬)",
+      "aliases": [
+        "건국대학교(글로컬)_분교"
+      ],
+      "is_branch": true
+    },
+    {
+      "name": "중원대학교",
+      "aliases": []
+    },
+    {
+      "name": "배재대학교",
+      "aliases": []
+    },
+    {
+      "name": "선문대학교",
+      "aliases": []
+    },
+    {
+      "name": "건양대학교",
+      "aliases": [
+        "건양대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "한국기술교육대학교",
+      "aliases": []
+    },
+    {
+      "name": "유원대학교",
+      "aliases": []
+    },
+    {
+      "name": "청운대학교",
+      "aliases": []
+    },
+    {
+      "name": "우송대학교",
+      "aliases": []
+    },
+    {
+      "name": "세명대학교",
+      "aliases": []
+    },
+    {
+      "name": "극동대학교",
+      "aliases": []
+    },
+    {
+      "name": "순천향대학교",
+      "aliases": []
+    },
+    {
+      "name": "서원대학교",
+      "aliases": []
+    },
+    {
+      "name": "남서울대학교",
+      "aliases": []
+    },
+    {
+      "name": "호서대학교",
+      "aliases": []
+    },
+    {
+      "name": "중부대학교",
+      "aliases": []
+    },
+    {
+      "name": "고려대학교(세종)",
+      "aliases": [
+        "고려대학교(세종)_분교"
+      ],
+      "is_branch": true
+    },
+    {
+      "name": "대전대학교",
+      "aliases": []
+    },
+    {
+      "name": "목원대학교",
+      "aliases": []
+    },
+    {
+      "name": "한남대학교",
+      "aliases": []
+    },
+    {
+      "name": "청주대학교",
+      "aliases": []
+    },
+    {
+      "name": "백석대학교",
+      "aliases": []
+    },
+    {
+      "name": "한서대학교",
+      "aliases": []
+    },
+    {
+      "name": "나사렛대학교",
+      "aliases": []
+    },
+    {
+      "name": "한림대학교",
+      "aliases": []
+    },
+    {
+      "name": "신경주대학교",
+      "aliases": [
+        "경주대학교"
+      ]
+    },
+    {
+      "name": "루터대학교",
+      "aliases": []
+    },
+    {
+      "name": "덕성여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "건국대학교",
+      "aliases": []
+    },
+    {
+      "name": "강서대학교",
+      "aliases": []
+    },
+    {
+      "name": "평택대학교",
+      "aliases": []
+    },
+    {
+      "name": "제주국제대학교",
+      "aliases": []
+    },
+    {
+      "name": "부산장신대학교",
+      "aliases": []
+    },
+    {
+      "name": "연세대학교",
+      "aliases": []
+    },
+    {
+      "name": "연세대학교(미래)",
+      "aliases": [
+        "연세대학교(미래)_분교"
+      ],
+      "is_branch": true
+    },
+    {
+      "name": "차의과학대학교",
+      "aliases": []
+    },
+    {
+      "name": "포항공과대학교",
+      "aliases": []
+    },
+    {
+      "name": "경동대학교",
+      "aliases": [
+        "경동대학교_제3캠퍼스",
+        "경동대학교_제4캠퍼스"
+      ]
+    },
+    {
+      "name": "화성의과학대학교",
+      "aliases": []
+    },
+    {
+      "name": "단국대학교",
+      "aliases": [
+        "단국대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "동덕여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "한국성서대학교",
+      "aliases": []
+    },
+    {
+      "name": "추계예술대학교",
+      "aliases": []
+    },
+    {
+      "name": "가톨릭관동대학교",
+      "aliases": []
+    },
+    {
+      "name": "인천가톨릭대학교",
+      "aliases": [
+        "인천가톨릭대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "영산대학교",
+      "aliases": [
+        "영산대학교_제2캠퍼스",
+        "영산대학교(양산)_제2캠퍼스",
+        "영산대학교(해운대)"
+      ]
+    },
+    {
+      "name": "김천대학교",
+      "aliases": []
+    },
+    {
+      "name": "경남대학교",
+      "aliases": []
+    },
+    {
+      "name": "가톨릭대학교",
+      "aliases": [
+        "가톨릭대학교_제2캠퍼스",
+        "가톨릭대학교_제3캠퍼스"
+      ]
+    },
+    {
+      "name": "한양대학교",
+      "aliases": []
+    },
+    {
+      "name": "한양대학교(ERICA)",
+      "aliases": [
+        "한양대학교(ERICA)_분교"
+      ],
+      "is_branch": true
+    },
+    {
+      "name": "대구예술대학교",
+      "aliases": []
+    },
+    {
+      "name": "한국외국어대학교",
+      "aliases": []
+    },
+    {
+      "name": "가야대학교",
+      "aliases": [
+        "가야대학교(김해)"
+      ]
+    },
+    {
+      "name": "한동대학교",
+      "aliases": []
+    },
+    {
+      "name": "아주대학교",
+      "aliases": []
+    },
+    {
+      "name": "동명대학교",
+      "aliases": []
+    },
+    {
+      "name": "초당대학교",
+      "aliases": []
+    },
+    {
+      "name": "창신대학교",
+      "aliases": []
+    },
+    {
+      "name": "강남대학교",
+      "aliases": []
+    },
+    {
+      "name": "국민대학교",
+      "aliases": []
+    },
+    {
+      "name": "신한대학교",
+      "aliases": [
+        "신한대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "울산대학교",
+      "aliases": []
+    },
+    {
+      "name": "부산외국어대학교",
+      "aliases": []
+    },
+    {
+      "name": "예수대학교",
+      "aliases": []
+    },
+    {
+      "name": "삼육대학교",
+      "aliases": []
+    },
+    {
+      "name": "한국공학대학교",
+      "aliases": []
+    },
+    {
+      "name": "경일대학교",
+      "aliases": []
+    },
+    {
+      "name": "목포가톨릭대학교",
+      "aliases": []
+    },
+    {
+      "name": "서울기독대학교",
+      "aliases": []
+    },
+    {
+      "name": "한세대학교",
+      "aliases": []
+    },
+    {
+      "name": "용인대학교",
+      "aliases": []
+    },
+    {
+      "name": "인제대학교",
+      "aliases": [
+        "인제대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "이화여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "광주대학교",
+      "aliases": []
+    },
+    {
+      "name": "한성대학교",
+      "aliases": []
+    },
+    {
+      "name": "계명대학교",
+      "aliases": []
+    },
+    {
+      "name": "명지대학교",
+      "aliases": [
+        "명지대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "인하대학교",
+      "aliases": []
+    },
+    {
+      "name": "한국항공대학교",
+      "aliases": []
+    },
+    {
+      "name": "서경대학교",
+      "aliases": []
+    },
+    {
+      "name": "대신대학교",
+      "aliases": []
+    },
+    {
+      "name": "광주여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "수원대학교",
+      "aliases": []
+    },
+    {
+      "name": "동양대학교",
+      "aliases": []
+    },
+    {
+      "name": "홍익대학교",
+      "aliases": [
+        "홍익대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "예원예술대학교",
+      "aliases": [
+        "예원예술대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "고신대학교",
+      "aliases": []
+    },
+    {
+      "name": "중앙대학교",
+      "aliases": [
+        "중앙대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "동국대학교",
+      "aliases": []
+    },
+    {
+      "name": "동국대학교(WISE)",
+      "aliases": [
+        "동국대학교(WISE)_분교"
+      ],
+      "is_branch": true
+    },
+    {
+      "name": "남부대학교",
+      "aliases": []
+    },
+    {
+      "name": "경운대학교",
+      "aliases": []
+    },
+    {
+      "name": "동서대학교",
+      "aliases": []
+    },
+    {
+      "name": "조선대학교",
+      "aliases": []
+    },
+    {
+      "name": "고려대학교",
+      "aliases": []
+    },
+    {
+      "name": "대구대학교",
+      "aliases": []
+    },
+    {
+      "name": "우석대학교",
+      "aliases": []
+    },
+    {
+      "name": "대진대학교",
+      "aliases": []
+    },
+    {
+      "name": "서울신학대학교",
+      "aliases": []
+    },
+    {
+      "name": "한일장신대학교",
+      "aliases": []
+    },
+    {
+      "name": "상명대학교",
+      "aliases": [
+        "상명대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "위덕대학교",
+      "aliases": []
+    },
+    {
+      "name": "총신대학교",
+      "aliases": []
+    },
+    {
+      "name": "동신대학교",
+      "aliases": []
+    },
+    {
+      "name": "동의대학교",
+      "aliases": []
+    },
+    {
+      "name": "경희대학교",
+      "aliases": []
+    },
+    {
+      "name": "대구가톨릭대학교",
+      "aliases": []
+    },
+    {
+      "name": "가천대학교",
+      "aliases": []
+    },
+    {
+      "name": "동아대학교",
+      "aliases": []
+    },
+    {
+      "name": "영남대학교",
+      "aliases": []
+    },
+    {
+      "name": "호원대학교",
+      "aliases": []
+    },
+    {
+      "name": "세한대학교",
+      "aliases": []
+    },
+    {
+      "name": "신라대학교",
+      "aliases": []
+    },
+    {
+      "name": "원광대학교",
+      "aliases": []
+    },
+    {
+      "name": "상지대학교",
+      "aliases": []
+    },
+    {
+      "name": "안양대학교",
+      "aliases": [
+        "안양대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "한신대학교",
+      "aliases": []
+    },
+    {
+      "name": "경성대학교",
+      "aliases": []
+    },
+    {
+      "name": "성공회대학교",
+      "aliases": []
+    },
+    {
+      "name": "대구한의대학교",
+      "aliases": []
+    },
+    {
+      "name": "전주대학교",
+      "aliases": []
+    },
+    {
+      "name": "성균관대학교",
+      "aliases": []
+    },
+    {
+      "name": "서울여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "성신여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "숭실대학교",
+      "aliases": []
+    },
+    {
+      "name": "광운대학교",
+      "aliases": []
+    },
+    {
+      "name": "숙명여자대학교",
+      "aliases": []
+    },
+    {
+      "name": "성결대학교",
+      "aliases": []
+    },
+    {
+      "name": "부산가톨릭대학교",
+      "aliases": []
+    },
+    {
+      "name": "경기대학교",
+      "aliases": [
+        "경기대학교_제2캠퍼스"
+      ]
+    },
+    {
+      "name": "한라대학교",
+      "aliases": []
+    },
+    {
+      "name": "협성대학교",
+      "aliases": []
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(cd \"c:\\\\Users\\\\정화민\\\\Desktop\\\\IR센터 MCP\\\\Raw data\"\")",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: 전임교원 연구실적 학교별자료 전처리 도구 추가\n\n- 대학알리미 원시 엑셀 데이터에서 대학별 SCI/SCOPUS 논문 실적 추출\n- 전국/충청권 순위 자동 산출 \\(1인당 논문수 기준\\)\n- 캠퍼스 자동 합산, 컬럼 위치 키워드 자동 탐지\n- 엑셀 + CSV 동시 출력\n- 외부 JSON 설정으로 대학 리스트/지역 관리\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(iconv:*)",
+      "Bash(wc:*)",
+      "Bash(python3:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(start cmd /k \"streamlit run report_app/app.py\")",
+      "Bash(for script in syntax_check import_check dependency_check smoke_test auto_pip_install)",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(for:*)",
+      "Bash(do python -m py_compile \"$f\")",
+      "Bash(echo:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(git init:*)",
+      "Bash(git config:*)"
+    ]
+  }
+}

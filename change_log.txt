@@ -1,0 +1,20 @@
+2026-02-23 20:55:24 | 수정 | config.py (report_app/)
+2026-02-23 20:56:28 | 신규 생성 | syntax_check.py (scripts/)
+2026-02-23 20:56:33 | 신규 생성 | auto_pip_install.py (scripts/)
+2026-02-23 20:56:42 | 신규 생성 | session_end_summary.py (scripts/)
+2026-02-23 20:59:01 | 신규 생성 | import_check.py (scripts/)
+2026-02-23 20:59:17 | 신규 생성 | dependency_check.py (scripts/)
+2026-02-23 20:59:36 | 신규 생성 | smoke_test.py (scripts/)
+2026-02-23 21:00:44 | 수정 | smoke_test.py (scripts/)
+2026-02-23 21:08:59 | 신규 생성 | app.py (report_app/)
+2026-02-23 21:13:23 | 수정 | app.py (report_app/) — v3.0 UI/UX 전면 리디자인
+2026-02-23 21:22:13 | 수정 | backup_on_edit.py (scripts/) — Windows 한글 경로 인코딩 수정
+2026-02-23 21:22:18 | 수정 | log_change.py (scripts/) — Windows 한글 경로 인코딩 수정
+2026-02-23 21:22:18 | 수정 | syntax_check.py (scripts/) — stdin 인코딩 수정
+2026-02-23 21:22:18 | 수정 | import_check.py (scripts/) — stdin 인코딩 수정
+2026-02-23 21:22:18 | 수정 | dependency_check.py (scripts/) — stdin 인코딩 수정
+2026-02-23 21:22:18 | 수정 | smoke_test.py (scripts/) — stdin 인코딩 수정
+2026-02-23 21:22:18 | 수정 | auto_pip_install.py (scripts/) — stdin 인코딩 수정
+2026-02-23 21:26:15 | 수정 | app.py (report_app/)
+2026-02-23 21:26:24 | 수정 | app.py (report_app/)
+2026-02-23 21:26:29 | 수정 | app.py (report_app/)
