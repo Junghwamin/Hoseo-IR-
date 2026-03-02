@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  PYTHONUTF8: "1"
+
 jobs:
   build-windows:
     runs-on: windows-latest
