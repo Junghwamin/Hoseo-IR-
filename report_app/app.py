@@ -585,6 +585,22 @@ def _save_api_key(key: str):
 # 헬퍼: 스텝 이동
 # ---------------------------------------------------------------------------
 def _go(step: int):
+    # text_area 위젯 값을 비-위젯 키에 백업
+    # (Streamlit은 미렌더 위젯의 session_state key를 다음 rerun에서 삭제하므로)
+    _narrative_keys = ("narrative_trend", "narrative_comparison",
+                       "narrative_regional", "narrative_yoy")
+    for k in _narrative_keys:
+        val = st.session_state.get(k, "")
+        if val:
+            st.session_state[f"_saved_{k}"] = val
+
+    # 4단계로 돌아올 때 저장된 값 복원 (위젯이 다시 렌더되므로 key에 재설정)
+    if step == 4:
+        for k in _narrative_keys:
+            saved = st.session_state.get(f"_saved_{k}", "")
+            if saved:
+                st.session_state[k] = saved
+
     st.session_state.step = step
 
 
@@ -1221,11 +1237,12 @@ elif st.session_state.step == 5:
     cmpd   = st.session_state.compare_data
     charts = st.session_state.charts
 
+    # _saved_ 키에서 읽기 (위젯 키는 5단계에서 Streamlit이 삭제하므로)
     narratives = {
-        "trend":      st.session_state.narrative_trend,
-        "comparison": st.session_state.narrative_comparison,
-        "regional":   st.session_state.narrative_regional,
-        "yoy":        st.session_state.narrative_yoy,
+        "trend":      st.session_state.get("_saved_narrative_trend", st.session_state.get("narrative_trend", "")),
+        "comparison": st.session_state.get("_saved_narrative_comparison", st.session_state.get("narrative_comparison", "")),
+        "regional":   st.session_state.get("_saved_narrative_regional", st.session_state.get("narrative_regional", "")),
+        "yoy":        st.session_state.get("_saved_narrative_yoy", st.session_state.get("narrative_yoy", "")),
     }
 
     st.markdown('<div class="ir-section-title">📄 5단계: 보고서 최종 생성</div>', unsafe_allow_html=True)

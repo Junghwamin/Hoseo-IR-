@@ -189,3 +189,5 @@ def get_narrative(client: OpenAI) -> dict[str, str]: ...
 | 2026-02-23 | 신규 생성: `backup_on_edit.py` |
 | 2026-02-23 | 수정: `log_change.py` |
 | 2026-02-23 | 수정: `app.py` |
+| 2026-03-02 | 수정: `전임교원_연구실적_전처리.py` |
+| 2026-03-02 | 수정: `app.py` |

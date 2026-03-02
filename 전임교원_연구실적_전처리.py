@@ -161,6 +161,11 @@ def find_columns(df: pd.DataFrame) -> dict:
             if faculty_col is not None:
                 break
 
+        # "계" 하위 헤더가 없는 구형 포맷(2016년 등)은
+        # 헤더 컬럼 자체가 곧 데이터 컬럼이므로 그대로 사용
+        if faculty_col is None:
+            faculty_col = faculty_header_col
+
     # --- SCI/SCOPUS 논문수(계) 찾기 ---
     # "SCI" 또는 "SCOPUS"가 포함된 셀을 찾은 뒤,
     # 해당 컬럼 그룹의 하위 row에서 "계"인 첫 번째 컬럼 선택
@@ -204,6 +209,11 @@ def find_columns(df: pd.DataFrame) -> dict:
                     break
             if sci_col is not None:
                 break
+
+        # "계" 하위 헤더가 없는 구형 포맷(2016년 등)은
+        # SCI/SCOPUS 헤더 컬럼 자체가 곧 데이터 컬럼이므로 그대로 사용
+        if sci_col is None:
+            sci_col = sci_header_col
 
     # --- 데이터 시작 행 탐지 ---
     # 헤더 영역 이후, "대학교"/"대학" 값이 학교종류 컬럼에 나타나는 첫 행
