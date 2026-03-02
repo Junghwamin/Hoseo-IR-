@@ -2,14 +2,15 @@
 # ===========================================================================
 # 호서대학교 IR센터 연구실적 분석 포털 - macOS 빌드 스크립트
 #
-# Standalone Python을 포함한 .app 번들을 생성하고 DMG로 패키징한다.
+# python-build-standalone(완전 독립형 Python)을 번들에 내장하여
+# 대상 Mac에 Python이 없어도 실행 가능한 .app + .dmg를 생성한다.
 #
 # 사용법:
 #   bash installer/macos/build_macos.sh
 #
 # 요구사항:
 #   - macOS 11.0+ (GitHub Actions macos-latest에서 실행 권장)
-#   - Python 3.11 (actions/setup-python으로 설치)
+#   - curl, tar, hdiutil (macOS 기본 제공)
 # ===========================================================================
 
 set -e
@@ -22,32 +23,61 @@ APP_BUNDLE="$BUILD_DIR/${APP_NAME}.app"
 DIST_DIR="$PROJECT_ROOT/dist/macos"
 APP_VERSION="3.0"
 
+# python-build-standalone 릴리즈 (완전 독립형, relocatable)
+PYTHON_BUILD_TAG="20250317"
+PYTHON_VERSION="3.11.12"
+
+# 현재 아키텍처 감지 (arm64 또는 x86_64)
+ARCH="$(uname -m)"
+if [ "$ARCH" = "arm64" ]; then
+    PYTHON_TRIPLE="aarch64-apple-darwin"
+else
+    PYTHON_TRIPLE="x86_64-apple-darwin"
+fi
+
+PYTHON_URL="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_BUILD_TAG}/cpython-${PYTHON_VERSION}+${PYTHON_BUILD_TAG}-${PYTHON_TRIPLE}-install_only_stripped.tar.gz"
+
 echo "=========================================="
 echo "  IR센터 분석 포털 - macOS 빌드"
+echo "  아키텍처: $ARCH"
 echo "=========================================="
 
 # --- 1. 빌드 디렉토리 초기화 ---
 echo ""
-echo "[1/5] 빌드 디렉토리 초기화..."
+echo "[1/6] 빌드 디렉토리 초기화..."
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
-# --- 2. Python venv 생성 + 의존성 설치 ---
+# --- 2. Standalone Python 다운로드 ---
 echo ""
-echo "[2/5] Python 가상환경 생성 및 의존성 설치..."
-VENV_DIR="$BUILD_DIR/python-venv"
+echo "[2/6] Standalone Python 다운로드..."
+echo "  URL: $PYTHON_URL"
+PYTHON_TAR="$BUILD_DIR/python-standalone.tar.gz"
+curl -L -o "$PYTHON_TAR" "$PYTHON_URL"
 
-# --copies: 심볼릭 링크 대신 Python 바이너리를 실제 복사
-# (다른 Mac에서 빌드 머신의 절대경로를 참조하지 않도록)
-python3 -m venv --copies "$VENV_DIR"
-source "$VENV_DIR/bin/activate"
-pip install --upgrade pip
-pip install -r "$PROJECT_ROOT/requirements.txt"
-deactivate
+echo "  압축 해제..."
+STANDALONE_DIR="$BUILD_DIR/python-standalone"
+mkdir -p "$STANDALONE_DIR"
+tar -xzf "$PYTHON_TAR" -C "$STANDALONE_DIR"
+rm "$PYTHON_TAR"
 
-# --- 3. .app 번들 구조 생성 ---
+# python-build-standalone은 python/ 디렉토리로 추출됨
+PYTHON_ROOT="$STANDALONE_DIR/python"
+PYTHON_BIN="$PYTHON_ROOT/bin/python3"
+
+echo "  Python 경로: $PYTHON_BIN"
+"$PYTHON_BIN" --version
+
+# --- 3. 의존성 설치 ---
 echo ""
-echo "[3/5] .app 번들 구조 생성..."
+echo "[3/6] 의존성 설치..."
+"$PYTHON_BIN" -m pip install --upgrade pip
+"$PYTHON_BIN" -m pip install -r "$PROJECT_ROOT/requirements.txt"
+echo "  의존성 설치 완료"
+
+# --- 4. .app 번들 구조 생성 ---
+echo ""
+echo "[4/6] .app 번들 구조 생성..."
 mkdir -p "$APP_BUNDLE/Contents/MacOS"
 mkdir -p "$APP_BUNDLE/Contents/Resources/app"
 mkdir -p "$APP_BUNDLE/Contents/Resources/app/output/reports"
@@ -63,37 +93,12 @@ if [ -f "$SCRIPT_DIR/icon.icns" ]; then
     cp "$SCRIPT_DIR/icon.icns" "$APP_BUNDLE/Contents/Resources/icon.icns"
 fi
 
-# --- 4. 앱 파일 및 Python 환경 복사 ---
+# --- 5. 앱 파일 및 Python 환경 복사 ---
 echo ""
-echo "[4/5] 파일 복사..."
+echo "[5/6] 파일 복사..."
 
-# Python venv 복사
-cp -R "$VENV_DIR" "$APP_BUNDLE/Contents/Resources/python-venv"
-
-# --- venv 내부 경로 재설정 (이식성 확보) ---
-BUNDLE_VENV="$APP_BUNDLE/Contents/Resources/python-venv"
-
-# 남아있는 심볼릭 링크를 실제 파일로 교체
-find "$BUNDLE_VENV/bin" -type l | while read link; do
-    target="$(readlink "$link")"
-    if [ -f "$target" ]; then
-        rm "$link"
-        cp "$target" "$link"
-        chmod +x "$link"
-    fi
-done
-
-# pyvenv.cfg의 home 경로를 번들 내부로 변경
-sed -i '' "s|^home = .*|home = python-venv/bin|" "$BUNDLE_VENV/pyvenv.cfg"
-
-# bin/ 내 스크립트들의 shebang을 상대경로 python3로 변경
-find "$BUNDLE_VENV/bin" -type f -maxdepth 1 | while read f; do
-    if head -1 "$f" | grep -q "^#!.*python"; then
-        sed -i '' "1s|^#!.*python[0-9.]*|#!/usr/bin/env python3|" "$f"
-    fi
-done
-
-echo "  venv 경로 재설정 완료 (이식성 확보)"
+# Standalone Python 전체를 번들에 복사
+cp -R "$PYTHON_ROOT" "$APP_BUNDLE/Contents/Resources/python"
 
 # 앱 소스 코드 복사
 cp -R "$PROJECT_ROOT/report_app" "$APP_BUNDLE/Contents/Resources/app/report_app"
@@ -109,9 +114,9 @@ find "$APP_BUNDLE" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || 
 cp "$SCRIPT_DIR/launcher.sh" "$APP_BUNDLE/Contents/MacOS/launcher"
 chmod +x "$APP_BUNDLE/Contents/MacOS/launcher"
 
-# --- 5. DMG 생성 ---
+# --- 6. DMG 생성 ---
 echo ""
-echo "[5/5] DMG 생성..."
+echo "[6/6] DMG 생성..."
 mkdir -p "$DIST_DIR"
 DMG_PATH="$DIST_DIR/HoseoIR_Setup_v${APP_VERSION}.dmg"
 

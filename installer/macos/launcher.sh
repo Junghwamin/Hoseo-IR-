@@ -2,30 +2,27 @@
 # ===========================================================================
 # IR센터 연구실적 분석 포털 - macOS 런처
 #
-# .app 번들 내에서 실행되어 Streamlit 서버를 시작하고 브라우저를 연다.
+# .app 번들 내의 Standalone Python으로 Streamlit 서버를 시작하고
+# 브라우저를 연다.
 # ===========================================================================
 
 DIR="$(cd "$(dirname "$0")/../Resources" && pwd)"
 APP_DIR="$DIR/app"
-VENV_DIR="$DIR/python-venv"
+PYTHON_DIR="$DIR/python"
+PYTHON="$PYTHON_DIR/bin/python3"
 PORT=8501
 
-# 번들 내장 Python 바이너리를 직접 참조 (심볼릭 링크 의존 제거)
-if [ -f "$VENV_DIR/bin/python3.11" ]; then
-    PYTHON="$VENV_DIR/bin/python3.11"
-elif [ -f "$VENV_DIR/bin/python3" ]; then
-    PYTHON="$VENV_DIR/bin/python3"
-else
-    osascript -e 'display dialog "Python을 찾을 수 없습니다." buttons {"확인"} with icon stop'
+# Python 바이너리 존재 확인
+if [ ! -f "$PYTHON" ]; then
+    osascript -e 'display dialog "Python을 찾을 수 없습니다.\n경로: '"$PYTHON"'" buttons {"확인"} with icon stop'
     exit 1
 fi
 
 export PYTHONPATH="$APP_DIR"
 export STREAMLIT_SERVER_HEADLESS=true
 export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-# venv의 site-packages를 Python이 인식하도록 VIRTUAL_ENV 설정
-export VIRTUAL_ENV="$VENV_DIR"
-export PATH="$VENV_DIR/bin:$PATH"
+# Standalone Python의 라이브러리 경로 설정
+export PATH="$PYTHON_DIR/bin:$PATH"
 
 # 사용 가능한 포트 찾기
 find_free_port() {
