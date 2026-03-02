@@ -502,9 +502,9 @@ def export_csv(
 # ---------------------------------------------------------------------------
 def main():
     script_dir = Path(__file__).parent
-    config_dir = script_dir / "config"
-    raw_dir = script_dir / "Raw data"
-    output_dir = script_dir / "output"
+    config_dir = script_dir / "config"    # config JSON은 코드와 함께 번들에 포함 (read-only OK)
+    raw_dir = Path.cwd() / "Raw data"     # CWD 기준 (쓰기 가능)
+    output_dir = Path.cwd() / "output"    # CWD 기준 (쓰기 가능)
 
     output_dir.mkdir(exist_ok=True)
 

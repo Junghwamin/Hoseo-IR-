@@ -33,7 +33,10 @@ from report_app import report_builder as rb
 from report_app.config import NATIONAL_CSV, REGIONAL_CSV, REPORT_DIR, UNIVERSITY
 
 # 전처리 스크립트 동적 임포트
+# 번들 내부(macOS) 또는 CWD(개발자/Windows) 양쪽 지원
 _PREPROCESS_PATH = Path(__file__).parent.parent / "전임교원_연구실적_전처리.py"
+if not _PREPROCESS_PATH.exists():
+    _PREPROCESS_PATH = Path.cwd() / "전임교원_연구실적_전처리.py"
 
 def _load_preprocessor():
     spec = importlib.util.spec_from_file_location("preprocessor", str(_PREPROCESS_PATH))
@@ -44,7 +47,7 @@ def _load_preprocessor():
 # ---------------------------------------------------------------------------
 # 경로 상수
 # ---------------------------------------------------------------------------
-_ENV_PATH = Path(__file__).parent.parent / ".env"
+_ENV_PATH = Path.cwd() / ".env"
 
 # ---------------------------------------------------------------------------
 # .env 로드
@@ -750,7 +753,7 @@ if st.session_state.step == 1:
     st.markdown('<div class="ir-section-title">📂 1단계: 원시 데이터 전처리 / 데이터 설정</div>', unsafe_allow_html=True)
     st.markdown('<div class="ir-stat-banner">대학알리미 Raw Excel을 전처리하거나, 이미 전처리된 CSV 파일을 불러옵니다.</div>', unsafe_allow_html=True)
 
-    _RAW_DIR = Path(__file__).parent.parent / "Raw data"
+    _RAW_DIR = Path.cwd() / "Raw data"
 
     tab_preprocess, tab_csv_upload, tab_existing = st.tabs([
         "🔧 원시 데이터 전처리",

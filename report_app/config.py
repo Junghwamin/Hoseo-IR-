@@ -27,7 +27,7 @@ COMPARE_GROUP_NAME = "천안·아산 5개 대학"
 # ---------------------------------------------------------------------------
 # 경로 설정 (이 파일 위치 기준 → report_app/ 의 부모 = 프로젝트 루트)
 # ---------------------------------------------------------------------------
-_PROJECT_ROOT = Path(__file__).parent.parent
+_PROJECT_ROOT = Path.cwd()
 
 DATA_DIR = _PROJECT_ROOT / "output"
 REPORT_DIR = _PROJECT_ROOT / "output" / "reports"
