@@ -1,0 +1,87 @@
+name: Build Installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Create app icon
+        run: python installer/windows/create_icon.py
+
+      - name: Build Windows distribution
+        run: python installer/windows/build_windows.py
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Compile installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\windows\setup.iss
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/windows/*.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build macOS app bundle + DMG
+        run: bash installer/macos/build_macos.sh
+
+      - name: Upload macOS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-installer
+          path: dist/macos/*.dmg
+
+  release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "IR센터 연구실적 분석 포털 ${{ github.ref_name }}"
+          body: |
+            ## 호서대학교 IR센터 연구실적 분석 포털
+
+            ### 설치 방법
+            - **Windows**: `HoseoIR_Setup_v*.exe` 다운로드 후 실행
+            - **macOS**: `HoseoIR_Setup_v*.dmg` 다운로드 → 앱을 Applications 폴더로 드래그
+
+            ### 변경사항
+            - 자세한 내용은 커밋 이력을 참고하세요.
+          files: |
+            windows-installer/*.exe
+            macos-installer/*.dmg
+          draft: false
+          prerelease: false

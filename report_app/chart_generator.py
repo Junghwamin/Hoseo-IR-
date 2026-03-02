@@ -15,9 +15,27 @@ import pandas as pd
 
 from report_app.config import COMPARE_GROUP, UNIVERSITY
 
-# 한글 폰트 설정 (Windows: 맑은 고딕)
-matplotlib.rcParams["font.family"] = "Malgun Gothic"
-matplotlib.rcParams["axes.unicode_minus"] = False
+# 한글 폰트 설정 (OS별 자동 감지)
+import platform as _platform
+import matplotlib.font_manager as _fm
+
+def _setup_korean_font():
+    """OS별 한글 폰트를 자동 감지하여 설정한다."""
+    system = _platform.system()
+    if system == "Windows":
+        font_name = "Malgun Gothic"
+    elif system == "Darwin":  # macOS
+        available = {f.name for f in _fm.fontManager.ttflist}
+        if "Apple SD Gothic Neo" in available:
+            font_name = "Apple SD Gothic Neo"
+        else:
+            font_name = "AppleGothic"
+    else:  # Linux
+        font_name = "NanumGothic"
+    matplotlib.rcParams["font.family"] = font_name
+    matplotlib.rcParams["axes.unicode_minus"] = False
+
+_setup_korean_font()
 
 # 색상 팔레트
 COLOR_HOSEO = "#1f77b4"      # 호서대 강조 파란색

@@ -191,3 +191,6 @@ def get_narrative(client: OpenAI) -> dict[str, str]: ...
 | 2026-02-23 | 수정: `app.py` |
 | 2026-03-02 | 수정: `전임교원_연구실적_전처리.py` |
 | 2026-03-02 | 수정: `app.py` |
+| 2026-03-02 | 수정: `chart_generator.py` |
+| 2026-03-02 | 신규 생성: `build_windows.py` |
+| 2026-03-02 | 신규 생성: `create_icon.py` |
