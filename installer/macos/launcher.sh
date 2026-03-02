@@ -4,6 +4,10 @@
 #
 # .app 번들 내의 Standalone Python으로 Streamlit 서버를 시작하고
 # 브라우저를 연다.
+#
+# 앱 데이터(output, Raw data, .env 등)는 번들 외부의
+# ~/Library/Application Support/HoseoIRPortal/ 에 저장한다.
+# (.app 번들 내부는 macOS 보안 정책상 읽기 전용)
 # ===========================================================================
 
 DIR="$(cd "$(dirname "$0")/../Resources" && pwd)"
@@ -18,10 +22,24 @@ if [ ! -f "$PYTHON" ]; then
     exit 1
 fi
 
+# --- 쓰기 가능한 데이터 디렉토리 설정 ---
+DATA_DIR="$HOME/Library/Application Support/HoseoIRPortal"
+mkdir -p "$DATA_DIR/output/reports"
+mkdir -p "$DATA_DIR/Raw data"
+
+# .streamlit 설정 복사 (최초 실행 시)
+if [ ! -d "$DATA_DIR/.streamlit" ]; then
+    cp -R "$APP_DIR/.streamlit" "$DATA_DIR/.streamlit"
+fi
+
+# config 복사 (최초 실행 시)
+if [ ! -d "$DATA_DIR/config" ]; then
+    cp -R "$APP_DIR/config" "$DATA_DIR/config"
+fi
+
 export PYTHONPATH="$APP_DIR"
 export STREAMLIT_SERVER_HEADLESS=true
 export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-# Standalone Python의 라이브러리 경로 설정
 export PATH="$PYTHON_DIR/bin:$PATH"
 
 # 사용 가능한 포트 찾기
@@ -38,6 +56,10 @@ find_free_port() {
 }
 
 PORT=$(find_free_port)
+
+# 작업 디렉토리를 데이터 디렉토리로 설정
+# (앱 코드의 상대경로 output/, Raw data/, .env 등이 여기에 생성됨)
+cd "$DATA_DIR"
 
 # Streamlit 서버 시작 (백그라운드)
 "$PYTHON" -m streamlit run "$APP_DIR/report_app/app.py" \
