@@ -24,8 +24,9 @@ DIST_DIR="$PROJECT_ROOT/dist/macos"
 APP_VERSION="3.0"
 
 # python-build-standalone 릴리즈 (완전 독립형, relocatable)
-PYTHON_BUILD_TAG="20250317"
-PYTHON_VERSION="3.11.12"
+# https://github.com/astral-sh/python-build-standalone/releases
+PYTHON_BUILD_TAG="20251120"
+PYTHON_VERSION="3.11.14"
 
 # 현재 아키텍처 감지 (arm64 또는 x86_64)
 ARCH="$(uname -m)"
@@ -35,7 +36,8 @@ else
     PYTHON_TRIPLE="x86_64-apple-darwin"
 fi
 
-PYTHON_URL="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_BUILD_TAG}/cpython-${PYTHON_VERSION}+${PYTHON_BUILD_TAG}-${PYTHON_TRIPLE}-install_only_stripped.tar.gz"
+# URL의 + 문자를 %2B로 인코딩
+PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${PYTHON_BUILD_TAG}/cpython-${PYTHON_VERSION}%2B${PYTHON_BUILD_TAG}-${PYTHON_TRIPLE}-install_only.tar.gz"
 
 echo "=========================================="
 echo "  IR센터 분석 포털 - macOS 빌드"
