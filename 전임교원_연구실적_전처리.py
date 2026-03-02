@@ -10,6 +10,7 @@
 
 import json
 import re
+import unicodedata
 from pathlib import Path
 
 import pandas as pd
@@ -65,6 +66,10 @@ def scan_raw_files(raw_dir: Path) -> dict[int, Path]:
     """
     raw_dir에서 *.xlsx 파일을 탐색하고 파일명에서 연도를 추출한다.
 
+    macOS는 파일명을 NFD(분해형 유니코드)로 저장하므로,
+    '년' 같은 한글이 자모로 분해되어 정규식 매칭이 실패할 수 있다.
+    NFC 정규화를 적용하여 크로스플랫폼 호환성을 확보한다.
+
     Returns:
         {연도(int): 파일경로(Path)} - 연도 오름차순 정렬
     """
@@ -72,7 +77,9 @@ def scan_raw_files(raw_dir: Path) -> dict[int, Path]:
     pattern = re.compile(r"(\d{4})년")
 
     for fpath in raw_dir.glob("*.xlsx"):
-        match = pattern.search(fpath.name)
+        # macOS NFD → NFC 정규화 (한글 자모 분해 방지)
+        normalized_name = unicodedata.normalize("NFC", fpath.name)
+        match = pattern.search(normalized_name)
         if match:
             year = int(match.group(1))
             year_files[year] = fpath
@@ -520,10 +527,18 @@ def main():
     print(f"  지역: {', '.join(regions.keys())}")
 
     # --- 파일 스캔 ---
-    print("\n[2/5] Raw 데이터 파일 스캔 중...")
+    print(f"\n[2/5] Raw 데이터 파일 스캔 중... (경로: {raw_dir})")
+    if not raw_dir.exists():
+        print(f"  [오류] Raw data 폴더가 존재하지 않습니다: {raw_dir}")
+        return
+    all_xlsx = list(raw_dir.glob("*.xlsx"))
+    print(f"  발견된 xlsx 파일: {len(all_xlsx)}개")
+    for f in all_xlsx:
+        print(f"    - {f.name}")
     year_files = scan_raw_files(raw_dir)
     if not year_files:
-        print("  [오류] Raw data 폴더에서 Excel 파일을 찾을 수 없습니다.")
+        print("  [오류] 파일명에서 연도(YYYY년)를 찾을 수 없습니다.")
+        print("  파일명에 '2024년' 같은 연도가 포함되어야 합니다.")
         return
     for year, fpath in year_files.items():
         print(f"  {year}년: {fpath.name}")
