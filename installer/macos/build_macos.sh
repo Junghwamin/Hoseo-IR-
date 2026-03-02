@@ -36,7 +36,10 @@ mkdir -p "$BUILD_DIR"
 echo ""
 echo "[2/5] Python 가상환경 생성 및 의존성 설치..."
 VENV_DIR="$BUILD_DIR/python-venv"
-python3 -m venv "$VENV_DIR"
+
+# --copies: 심볼릭 링크 대신 Python 바이너리를 실제 복사
+# (다른 Mac에서 빌드 머신의 절대경로를 참조하지 않도록)
+python3 -m venv --copies "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 pip install --upgrade pip
 pip install -r "$PROJECT_ROOT/requirements.txt"
@@ -66,6 +69,31 @@ echo "[4/5] 파일 복사..."
 
 # Python venv 복사
 cp -R "$VENV_DIR" "$APP_BUNDLE/Contents/Resources/python-venv"
+
+# --- venv 내부 경로 재설정 (이식성 확보) ---
+BUNDLE_VENV="$APP_BUNDLE/Contents/Resources/python-venv"
+
+# 남아있는 심볼릭 링크를 실제 파일로 교체
+find "$BUNDLE_VENV/bin" -type l | while read link; do
+    target="$(readlink "$link")"
+    if [ -f "$target" ]; then
+        rm "$link"
+        cp "$target" "$link"
+        chmod +x "$link"
+    fi
+done
+
+# pyvenv.cfg의 home 경로를 번들 내부로 변경
+sed -i '' "s|^home = .*|home = python-venv/bin|" "$BUNDLE_VENV/pyvenv.cfg"
+
+# bin/ 내 스크립트들의 shebang을 상대경로 python3로 변경
+find "$BUNDLE_VENV/bin" -type f -maxdepth 1 | while read f; do
+    if head -1 "$f" | grep -q "^#!.*python"; then
+        sed -i '' "1s|^#!.*python[0-9.]*|#!/usr/bin/env python3|" "$f"
+    fi
+done
+
+echo "  venv 경로 재설정 완료 (이식성 확보)"
 
 # 앱 소스 코드 복사
 cp -R "$PROJECT_ROOT/report_app" "$APP_BUNDLE/Contents/Resources/app/report_app"

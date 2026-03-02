@@ -8,12 +8,24 @@
 DIR="$(cd "$(dirname "$0")/../Resources" && pwd)"
 APP_DIR="$DIR/app"
 VENV_DIR="$DIR/python-venv"
-PYTHON="$VENV_DIR/bin/python3"
 PORT=8501
+
+# 번들 내장 Python 바이너리를 직접 참조 (심볼릭 링크 의존 제거)
+if [ -f "$VENV_DIR/bin/python3.11" ]; then
+    PYTHON="$VENV_DIR/bin/python3.11"
+elif [ -f "$VENV_DIR/bin/python3" ]; then
+    PYTHON="$VENV_DIR/bin/python3"
+else
+    osascript -e 'display dialog "Python을 찾을 수 없습니다." buttons {"확인"} with icon stop'
+    exit 1
+fi
 
 export PYTHONPATH="$APP_DIR"
 export STREAMLIT_SERVER_HEADLESS=true
 export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+# venv의 site-packages를 Python이 인식하도록 VIRTUAL_ENV 설정
+export VIRTUAL_ENV="$VENV_DIR"
+export PATH="$VENV_DIR/bin:$PATH"
 
 # 사용 가능한 포트 찾기
 find_free_port() {
