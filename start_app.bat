@@ -1,7 +1,6 @@
 @echo off
 chcp 65001 >nul
-cd /d "C:\Users\정화민\Desktop\IR센터 MCP"
-set PYTHONPATH=C:\Users\정화민\Desktop\IR센터 MCP;%PYTHONPATH%
+cd /d "%~dp0"
 echo.
 echo  ========================================
 echo    호서대학교 IR센터 연구실적 분석 포털
@@ -13,5 +12,13 @@ echo.
 echo  종료하려면 이 창을 닫으세요.
 echo  ========================================
 echo.
-"C:\Users\정화민\AppData\Local\Programs\Python\Python311\Scripts\streamlit.exe" run report_app/app.py
+
+where streamlit >nul 2>&1
+if %errorlevel% equ 0 (
+    streamlit run report_app/app.py
+) else (
+    echo  [오류] streamlit이 설치되어 있지 않습니다.
+    echo  다음 명령으로 설치해 주세요:
+    echo     pip install -r requirements.txt
+)
 pause

@@ -63,7 +63,12 @@ def download_python():
 
 
 def enable_site_packages():
-    """python311._pth에서 'import site' 주석을 해제하여 pip가 동작하게 한다."""
+    """python311._pth를 수정하여 site-packages와 앱 루트 경로를 활성화한다.
+
+    Embedded Python은 ._pth 파일로 sys.path를 제어한다.
+    '..' 경로를 추가해야 python-embed/의 부모(=HoseoIRPortal/)에서
+    report_app 패키지를 import할 수 있다.
+    """
     pth_files = list(PYTHON_DIR.glob("python*._pth"))
     if not pth_files:
         raise FileNotFoundError("python*._pth 파일을 찾을 수 없습니다.")
@@ -71,12 +76,17 @@ def enable_site_packages():
     pth_file = pth_files[0]
     content = pth_file.read_text(encoding="utf-8")
 
+    # import site 활성화
     if "#import site" in content:
         content = content.replace("#import site", "import site")
-        pth_file.write_text(content, encoding="utf-8")
         print(f"  {pth_file.name}: import site 활성화 완료")
-    else:
-        print(f"  {pth_file.name}: import site 이미 활성화됨")
+
+    # '..' 경로 추가 → python-embed의 부모(HoseoIRPortal/) = 앱 루트
+    if ".." not in content.splitlines():
+        content = content.rstrip("\n") + "\n..\n"
+        print(f"  {pth_file.name}: '..' 경로 추가 (앱 루트 접근용)")
+
+    pth_file.write_text(content, encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -168,11 +178,26 @@ def copy_app_files():
         APP_DIR / "requirements.txt",
     )
 
-    # output 디렉토리 생성 (빈 폴더)
+    # output 디렉토리 + 기존 CSV 데이터 복사
     (APP_DIR / "output" / "reports").mkdir(parents=True, exist_ok=True)
+    for csv_name in ["전체_대학_데이터.csv", "충청권_순위.csv"]:
+        src = PROJECT_ROOT / "output" / csv_name
+        if src.exists():
+            shutil.copy2(src, APP_DIR / "output" / csv_name)
+            print(f"  데이터 포함: output/{csv_name}")
 
     # Raw data 디렉토리 생성 (빈 폴더)
     (APP_DIR / "Raw data").mkdir(parents=True, exist_ok=True)
+
+    # .env 템플릿 생성 (빈 API Key)
+    env_template = APP_DIR / ".env"
+    if not env_template.exists():
+        env_template.write_text(
+            "# OpenAI API Key (앱 사이드바에서도 설정 가능)\n"
+            "OPENAI_API_KEY=\n",
+            encoding="utf-8",
+        )
+        print("  .env 템플릿 생성 완료")
 
     # 런처 복사
     launcher_src = Path(__file__).parent / "launcher.pyw"
