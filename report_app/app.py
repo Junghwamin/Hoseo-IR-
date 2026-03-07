@@ -18,8 +18,12 @@ import contextlib
 import importlib.util
 import io as _io
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
+
+# Streamlit Cloud에서 report_app 패키지를 찾을 수 있도록 프로젝트 루트를 sys.path에 추가
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
 import streamlit as st
