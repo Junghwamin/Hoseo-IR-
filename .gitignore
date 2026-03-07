@@ -34,3 +34,6 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# Streamlit secrets (API Key 유출 방지)
+.streamlit/secrets.toml

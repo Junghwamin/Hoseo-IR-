@@ -21,16 +21,29 @@ from report_app.config import (
 # 1. 기본 로드
 # ---------------------------------------------------------------------------
 
-def load_all_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_all_data(
+    national_df: pd.DataFrame | None = None,
+    regional_df: pd.DataFrame | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    CSV 두 개를 읽어 (national_df, regional_df) 를 반환한다.
+    CSV 두 개를 읽어 (national_df, regional_df)를 반환한다.
 
-    Columns:
-        national_df : 연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 전국순위
-        regional_df : 연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 충청권순위, 전국순위
+    Streamlit Cloud에서는 이미 메모리에 로드된 DataFrame을
+    직접 전달받을 수 있다. 인자가 None이면 설정 경로의 CSV 파일에서 읽는다.
+
+    Args:
+        national_df: 직접 전달 시 파일 읽기 생략. None이면 NATIONAL_CSV에서 읽기.
+            Columns: 연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 전국순위
+        regional_df: 직접 전달 시 파일 읽기 생략. None이면 REGIONAL_CSV에서 읽기.
+            Columns: 연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 충청권순위, 전국순위
+
+    Returns:
+        (national_df, regional_df) 튜플
     """
-    national_df = pd.read_csv(NATIONAL_CSV, encoding="utf-8-sig")
-    regional_df = pd.read_csv(REGIONAL_CSV, encoding="utf-8-sig")
+    if national_df is None:
+        national_df = pd.read_csv(NATIONAL_CSV, encoding="utf-8-sig")
+    if regional_df is None:
+        regional_df = pd.read_csv(REGIONAL_CSV, encoding="utf-8-sig")
     return national_df, regional_df
 
 

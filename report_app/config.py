@@ -6,6 +6,10 @@ IR센터 보고서 앱 설정 파일
 """
 
 from pathlib import Path
+import os
+
+# Streamlit Cloud 환경 감지
+IS_CLOUD = bool(os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("IS_CLOUD"))
 
 # ---------------------------------------------------------------------------
 # 대상 대학

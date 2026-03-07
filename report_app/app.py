@@ -30,7 +30,7 @@ from report_app import chart_generator as cg
 from report_app import data_loader as dl
 from report_app import gpt_reporter as gpt
 from report_app import report_builder as rb
-from report_app.config import NATIONAL_CSV, REGIONAL_CSV, REPORT_DIR, UNIVERSITY
+from report_app.config import NATIONAL_CSV, REGIONAL_CSV, REPORT_DIR, UNIVERSITY, IS_CLOUD
 
 # 전처리 스크립트 동적 임포트
 # 번들 내부(macOS) 또는 CWD(개발자/Windows) 양쪽 지원
@@ -100,7 +100,7 @@ st.markdown("""
 /* ── 전체 배경 ────────────────────────────────────────────── */
 .stApp {
   background: #F0F4F9;
-  font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif !important;
+  font-family: 'Malgun Gothic', '맑은 고딕', 'NanumGothic', -apple-system, sans-serif !important;
 }
 
 /* ── 메인 컨테이너 패딩 ───────────────────────────────────── */
@@ -231,7 +231,7 @@ st.markdown("""
 .stTextArea textarea {
   border: 1.5px solid var(--gray-300) !important;
   border-radius: 8px !important;
-  font-family: 'Malgun Gothic', '맑은 고딕', sans-serif !important;
+  font-family: 'Malgun Gothic', '맑은 고딕', 'NanumGothic', sans-serif !important;
   font-size: 0.9rem !important;
   line-height: 1.7 !important;
   transition: border-color .2s !important;
@@ -547,6 +547,23 @@ hr {
 
 
 # ---------------------------------------------------------------------------
+# API Key 탐색 (secrets > .env > 빈 문자열)
+# ---------------------------------------------------------------------------
+def _get_api_key() -> str:
+    """API Key를 우선순위에 따라 탐색한다: secrets > .env > 빈 문자열"""
+    try:
+        key = st.secrets["OPENAI_API_KEY"]
+        if key and key.startswith("sk-") and "여기에" not in key:
+            return key
+    except (FileNotFoundError, KeyError):
+        pass
+    key = os.getenv("OPENAI_API_KEY", "")
+    if key and key.startswith("sk-") and "여기에" not in key:
+        return key
+    return ""
+
+
+# ---------------------------------------------------------------------------
 # Session State 초기화
 # ---------------------------------------------------------------------------
 _DEFAULTS = {
@@ -564,7 +581,7 @@ _DEFAULTS = {
     "narrative_comparison": "",
     "narrative_regional": "",
     "narrative_yoy": "",
-    "api_key": os.getenv("OPENAI_API_KEY", ""),
+    "api_key": _get_api_key(),
     "report_buf": None,
 }
 for k, v in _DEFAULTS.items():
@@ -579,8 +596,10 @@ if st.session_state.api_key.startswith("sk-여기에"):
 # 헬퍼: API Key 저장
 # ---------------------------------------------------------------------------
 def _save_api_key(key: str):
-    _ENV_PATH.touch(exist_ok=True)
-    set_key(str(_ENV_PATH), "OPENAI_API_KEY", key)
+    """API Key를 session_state에 저장하고, 로컬 환경이면 .env에도 영구 저장한다."""
+    if not IS_CLOUD:
+        _ENV_PATH.touch(exist_ok=True)
+        set_key(str(_ENV_PATH), "OPENAI_API_KEY", key)
     st.session_state.api_key = key
 
 
@@ -644,19 +663,25 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    col_save, col_clear = st.columns(2)
-    with col_save:
-        if st.button("💾 저장", use_container_width=True, help=".env에 영구 저장"):
-            if key_input.startswith("sk-") and len(key_input) > 20:
-                _save_api_key(key_input)
-                st.success("저장 완료!")
-            else:
-                st.error("올바른 키를 입력하세요.")
-    with col_clear:
-        if st.button("🗑 초기화", use_container_width=True):
-            _save_api_key("sk-여기에_실제_API_키를_입력하세요")
-            st.session_state.api_key = ""
-            st.rerun()
+    # 클라우드 환경에서는 session_state로만 관리 (.env 쓰기 불가)
+    if not IS_CLOUD:
+        col_save, col_clear = st.columns(2)
+        with col_save:
+            if st.button("💾 저장", use_container_width=True, help=".env에 영구 저장"):
+                if key_input.startswith("sk-") and len(key_input) > 20:
+                    _save_api_key(key_input)
+                    st.success("저장 완료!")
+                else:
+                    st.error("올바른 키를 입력하세요.")
+        with col_clear:
+            if st.button("🗑 초기화", use_container_width=True):
+                _save_api_key("sk-여기에_실제_API_키를_입력하세요")
+                st.session_state.api_key = ""
+                st.rerun()
+    else:
+        # 클라우드: 입력값을 session_state에만 반영
+        if key_input and key_input != st.session_state.api_key:
+            st.session_state.api_key = key_input
 
     if st.session_state.api_key:
         st.success("✅ API Key 설정됨")
@@ -696,7 +721,7 @@ with st.sidebar:
     if st.button("🔄 처음부터 다시", use_container_width=True):
         for k, v in _DEFAULTS.items():
             st.session_state[k] = v
-        st.session_state.api_key = os.getenv("OPENAI_API_KEY", "")
+        st.session_state.api_key = _get_api_key()
         st.rerun()
 
 
@@ -755,23 +780,32 @@ if st.session_state.step == 1:
 
     _RAW_DIR = Path.cwd() / "Raw data"
 
-    tab_preprocess, tab_csv_upload, tab_existing = st.tabs([
-        "🔧 원시 데이터 전처리",
-        "📂 전처리 결과 CSV 업로드",
-        "📁 기존 output/ 폴더 사용",
-    ])
+    # 클라우드 환경에서는 로컬 파일시스템 탭(기존 output/) 비활성화
+    if IS_CLOUD:
+        tab_preprocess, tab_csv_upload = st.tabs([
+            "🔧 원시 데이터 전처리",
+            "📂 전처리 결과 CSV 업로드",
+        ])
+    else:
+        tab_preprocess, tab_csv_upload, tab_existing = st.tabs([
+            "🔧 원시 데이터 전처리",
+            "📂 전처리 결과 CSV 업로드",
+            "📁 기존 output/ 폴더 사용",
+        ])
 
     # ── 탭 1: 원시 데이터 전처리 ────────────────────────────────────────────
     with tab_preprocess:
         st.markdown("**대학알리미에서 받은 Raw Excel 파일을 업로드하면 자동으로 전처리합니다.**")
         st.caption("파일명에 연도가 포함되어야 합니다. 예: `2024년_전임교원연구실적.xlsx`")
 
-        _RAW_DIR.mkdir(exist_ok=True)
-        existing_raws = sorted(_RAW_DIR.glob("*.xlsx"))
-        if existing_raws:
-            with st.expander(f"📁 현재 Raw data/ 폴더 파일 ({len(existing_raws)}개)", expanded=False):
-                for f in existing_raws:
-                    st.markdown(f"- `{f.name}`")
+        # 로컬 환경: Raw data/ 폴더 관리 UI 표시
+        if not IS_CLOUD:
+            _RAW_DIR.mkdir(exist_ok=True)
+            existing_raws = sorted(_RAW_DIR.glob("*.xlsx"))
+            if existing_raws:
+                with st.expander(f"📁 현재 Raw data/ 폴더 파일 ({len(existing_raws)}개)", expanded=False):
+                    for f in existing_raws:
+                        st.markdown(f"- `{f.name}`")
 
         uploaded_raws = st.file_uploader(
             "새 Raw Excel 파일 업로드 (여러 개 선택 가능)",
@@ -783,54 +817,84 @@ if st.session_state.step == 1:
 
         if uploaded_raws:
             st.info(f"**{len(uploaded_raws)}개 파일** 선택됨: {', '.join(f.name for f in uploaded_raws)}")
-            if st.button("💾 Raw data/ 에 저장", key="save_raw"):
-                for uf in uploaded_raws:
-                    save_path = _RAW_DIR / uf.name
-                    save_path.write_bytes(uf.read())
-                st.success(f"✅ {len(uploaded_raws)}개 파일 저장 완료 → Raw data/ 폴더")
-                st.rerun()
+            # 로컬 환경에서만 Raw data/ 폴더에 저장 버튼 표시
+            if not IS_CLOUD:
+                if st.button("💾 Raw data/ 에 저장", key="save_raw"):
+                    for uf in uploaded_raws:
+                        save_path = _RAW_DIR / uf.name
+                        save_path.write_bytes(uf.read())
+                    st.success(f"✅ {len(uploaded_raws)}개 파일 저장 완료 → Raw data/ 폴더")
+                    st.rerun()
 
         st.divider()
 
-        all_raws = sorted(_RAW_DIR.glob("*.xlsx"))
-        if not all_raws:
-            st.warning("⚠️ Raw data/ 폴더에 Excel 파일이 없습니다. 위에서 업로드하세요.")
-        else:
-            st.markdown(f"전처리 대상: **{len(all_raws)}개** 파일")
-            for f in all_raws:
-                st.markdown(f"  - `{f.name}`")
-
-            if st.button("⚙️ 전처리 실행", type="primary", use_container_width=True, key="run_preprocess"):
-                log_area = st.empty()
-                try:
-                    with st.spinner("전처리 실행 중..."):
-                        buf = _io.StringIO()
-                        with contextlib.redirect_stdout(buf):
+        if IS_CLOUD:
+            # --- 클라우드 모드: 업로드된 파일을 메모리 내에서 전처리 ---
+            if not uploaded_raws:
+                st.warning("⚠️ 위에서 Raw Excel 파일을 업로드하세요.")
+            else:
+                if st.button("⚙️ 전처리 실행", type="primary", use_container_width=True, key="run_preprocess"):
+                    try:
+                        with st.spinner("전처리 실행 중... (클라우드 모드)"):
                             mod = _load_preprocessor()
-                            mod.main()
-                        log_text = buf.getvalue()
+                            uploaded_dict = {f.name: f.getvalue() for f in uploaded_raws}
+                            nat_df, reg_df = mod.process_in_memory(uploaded_dict)
 
-                    st.success("✅ 전처리 완료! output/ 폴더에 CSV 파일이 생성되었습니다.")
-                    with st.expander("📋 전처리 로그 보기", expanded=True):
-                        st.code(log_text, language=None)
-
-                    if NATIONAL_CSV.exists() and REGIONAL_CSV.exists():
-                        nat_df, reg_df = dl.load_all_data()
-                        years = sorted(nat_df["연도"].unique().tolist(), reverse=True)
                         st.session_state.national_df = nat_df
                         st.session_state.regional_df = reg_df
+                        years = sorted(nat_df["연도"].unique().tolist(), reverse=True)
                         st.session_state.selected_year = years[0]
                         _calc_stats()
-                        st.success(f"📊 데이터 자동 로드 완료 — {years}년 데이터 준비됨")
-                        if st.button("▶ 2단계 통계 확인으로 이동", type="primary"):
-                            _go(2)
-                            st.rerun()
+                        st.session_state["data_loaded"] = True
+                        st.success("✅ 전처리 완료! (클라우드 모드)")
+                        st.rerun()
 
-                except Exception as e:
-                    st.error(f"전처리 오류: {e}")
-                    with st.expander("🔍 오류 상세"):
-                        import traceback
-                        st.code(traceback.format_exc())
+                    except Exception as e:
+                        st.error(f"전처리 오류: {e}")
+                        with st.expander("🔍 오류 상세"):
+                            import traceback
+                            st.code(traceback.format_exc())
+        else:
+            # --- 로컬 모드: 기존 방식 (파일시스템 기반) ---
+            all_raws = sorted(_RAW_DIR.glob("*.xlsx"))
+            if not all_raws:
+                st.warning("⚠️ Raw data/ 폴더에 Excel 파일이 없습니다. 위에서 업로드하세요.")
+            else:
+                st.markdown(f"전처리 대상: **{len(all_raws)}개** 파일")
+                for f in all_raws:
+                    st.markdown(f"  - `{f.name}`")
+
+                if st.button("⚙️ 전처리 실행", type="primary", use_container_width=True, key="run_preprocess"):
+                    log_area = st.empty()
+                    try:
+                        with st.spinner("전처리 실행 중..."):
+                            buf = _io.StringIO()
+                            with contextlib.redirect_stdout(buf):
+                                mod = _load_preprocessor()
+                                mod.main()
+                            log_text = buf.getvalue()
+
+                        st.success("✅ 전처리 완료! output/ 폴더에 CSV 파일이 생성되었습니다.")
+                        with st.expander("📋 전처리 로그 보기", expanded=True):
+                            st.code(log_text, language=None)
+
+                        if NATIONAL_CSV.exists() and REGIONAL_CSV.exists():
+                            nat_df, reg_df = dl.load_all_data()
+                            years = sorted(nat_df["연도"].unique().tolist(), reverse=True)
+                            st.session_state.national_df = nat_df
+                            st.session_state.regional_df = reg_df
+                            st.session_state.selected_year = years[0]
+                            _calc_stats()
+                            st.success(f"📊 데이터 자동 로드 완료 — {years}년 데이터 준비됨")
+                            if st.button("▶ 2단계 통계 확인으로 이동", type="primary"):
+                                _go(2)
+                                st.rerun()
+
+                    except Exception as e:
+                        st.error(f"전처리 오류: {e}")
+                        with st.expander("🔍 오류 상세"):
+                            import traceback
+                            st.code(traceback.format_exc())
 
     # ── 탭 2: CSV 직접 업로드 ───────────────────────────────────────────────
     with tab_csv_upload:
@@ -878,43 +942,44 @@ if st.session_state.step == 1:
             except Exception as e:
                 st.error(f"파일 읽기 오류: {e}")
 
-    # ── 탭 3: 기존 output/ 폴더 사용 ────────────────────────────────────────
-    with tab_existing:
-        nat_exists = NATIONAL_CSV.exists()
-        reg_exists = REGIONAL_CSV.exists()
+    # ── 탭 3: 기존 output/ 폴더 사용 (로컬 환경 전용) ────────────────────────
+    if not IS_CLOUD:
+        with tab_existing:
+            nat_exists = NATIONAL_CSV.exists()
+            reg_exists = REGIONAL_CSV.exists()
 
-        if nat_exists and reg_exists:
-            nat_df_ex = pd.read_csv(NATIONAL_CSV, encoding="utf-8-sig")
-            reg_df_ex = pd.read_csv(REGIONAL_CSV, encoding="utf-8-sig")
-            years_ex = sorted(nat_df_ex["연도"].unique().tolist(), reverse=True)
+            if nat_exists and reg_exists:
+                nat_df_ex = pd.read_csv(NATIONAL_CSV, encoding="utf-8-sig")
+                reg_df_ex = pd.read_csv(REGIONAL_CSV, encoding="utf-8-sig")
+                years_ex = sorted(nat_df_ex["연도"].unique().tolist(), reverse=True)
 
-            st.success(f"✅ output/ 폴더 파일 확인됨 — **{years_ex}**년 데이터")
+                st.success(f"✅ output/ 폴더 파일 확인됨 — **{years_ex}**년 데이터")
 
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.markdown("**전국 데이터 미리보기**")
-                st.dataframe(nat_df_ex.head(5), use_container_width=True)
-            with col_b:
-                st.markdown("**충청권 데이터 미리보기**")
-                st.dataframe(reg_df_ex.head(5), use_container_width=True)
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.markdown("**전국 데이터 미리보기**")
+                    st.dataframe(nat_df_ex.head(5), use_container_width=True)
+                with col_b:
+                    st.markdown("**충청권 데이터 미리보기**")
+                    st.dataframe(reg_df_ex.head(5), use_container_width=True)
 
-            selected_ex = st.selectbox("기준 연도 선택", years_ex, key="year_sel_existing")
+                selected_ex = st.selectbox("기준 연도 선택", years_ex, key="year_sel_existing")
 
-            if st.button("✅ 기존 파일로 분석 시작", type="primary", use_container_width=True):
-                st.session_state.national_df = nat_df_ex
-                st.session_state.regional_df = reg_df_ex
-                st.session_state.selected_year = selected_ex
-                _calc_stats()
-                _go(2)
-                st.rerun()
-        else:
-            missing = []
-            if not nat_exists:
-                missing.append("전체_대학_데이터.csv")
-            if not reg_exists:
-                missing.append("충청권_순위.csv")
-            st.warning(f"⚠️ output/ 폴더에 파일 없음: {', '.join(missing)}")
-            st.info("🔧 원시 데이터 전처리 탭에서 전처리를 먼저 실행하세요.")
+                if st.button("✅ 기존 파일로 분석 시작", type="primary", use_container_width=True):
+                    st.session_state.national_df = nat_df_ex
+                    st.session_state.regional_df = reg_df_ex
+                    st.session_state.selected_year = selected_ex
+                    _calc_stats()
+                    _go(2)
+                    st.rerun()
+            else:
+                missing = []
+                if not nat_exists:
+                    missing.append("전체_대학_데이터.csv")
+                if not reg_exists:
+                    missing.append("충청권_순위.csv")
+                st.warning(f"⚠️ output/ 폴더에 파일 없음: {', '.join(missing)}")
+                st.info("🔧 원시 데이터 전처리 탭에서 전처리를 먼저 실행하세요.")
 
 
 # ===========================================================================
@@ -1268,7 +1333,9 @@ elif st.session_state.step == 5:
     if st.button("📄 Word 보고서 생성", type="primary", use_container_width=True):
         with st.spinner("Word 파일 생성 중..."):
             try:
-                REPORT_DIR.mkdir(parents=True, exist_ok=True)
+                # 클라우드 환경에서는 파일시스템 디렉터리 생성 불필요 (BytesIO 반환)
+                if not IS_CLOUD:
+                    REPORT_DIR.mkdir(parents=True, exist_ok=True)
                 buf = rb.build_report(
                     year=year,
                     hoseo_trend=hoseo,
@@ -1303,7 +1370,7 @@ elif st.session_state.step == 5:
     if col_restart.button("🔄 처음부터", use_container_width=True):
         for k, v in _DEFAULTS.items():
             st.session_state[k] = v
-        st.session_state.api_key = os.getenv("OPENAI_API_KEY", "")
+        st.session_state.api_key = _get_api_key()
         st.rerun()
 
 

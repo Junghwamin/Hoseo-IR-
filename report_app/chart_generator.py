@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from io import BytesIO
+from pathlib import Path
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -30,8 +31,12 @@ def _setup_korean_font():
             font_name = "Apple SD Gothic Neo"
         else:
             font_name = "AppleGothic"
-    else:  # Linux
+    else:  # Linux (Streamlit Cloud 포함)
         font_name = "NanumGothic"
+        # packages.txt로 설치된 NanumGothic 폰트를 matplotlib에 등록
+        _nanum_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+        if Path(_nanum_path).exists():
+            _fm.fontManager.addfont(_nanum_path)
     matplotlib.rcParams["font.family"] = font_name
     matplotlib.rcParams["axes.unicode_minus"] = False
 

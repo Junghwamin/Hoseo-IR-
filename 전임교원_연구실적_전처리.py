@@ -8,6 +8,7 @@
     python 전임교원_연구실적_전처리.py
 """
 
+import io
 import json
 import re
 import unicodedata
@@ -505,7 +506,129 @@ def export_csv(
 
 
 # ---------------------------------------------------------------------------
-# 11. 메인 함수
+# 11. 인메모리 전처리 함수 (Streamlit Cloud용)
+# ---------------------------------------------------------------------------
+def process_in_memory(
+    uploaded_files: dict[str, bytes],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    업로드된 Excel 파일들을 메모리 내에서 전처리하여 DataFrame을 반환한다.
+
+    파일 시스템에 쓰기 없이 동작하므로 Streamlit Cloud에서 사용 가능하다.
+    기존 main()의 파이프라인을 재사용하되, 파일 I/O를 BytesIO로 대체한다.
+
+    처리 파이프라인:
+        1. 파일명에서 연도 추출 (YYYY년 또는 YYYY_ 패턴)
+        2. BytesIO를 통해 Excel 파싱 → 컬럼 자동 탐지
+        3. 대학교 필터링 → 캠퍼스 합산 → 1인당 논문수 계산
+        4. 전국순위 및 충청권순위 계산
+        5. 연도별 결과를 통합하여 최종 DataFrame 반환
+
+    Args:
+        uploaded_files: {파일명(str): 파일내용(bytes)} 딕셔너리.
+            파일명에 연도(YYYY년 또는 YYYY_)가 포함되어야 한다.
+            예: {"2024년_전임교원.xlsx": b"...", "2023년_전임교원.xlsx": b"..."}
+
+    Returns:
+        (national_df, regional_df) 튜플.
+        - national_df 컬럼: 연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 전국순위
+        - regional_df 컬럼: 연도, 학교명, 전임교원수, SCI/SCOPUS논문수, 1인당논문수, 충청권순위, 전국순위
+        두 DataFrame 모두 UTF-8-sig CSV와 동일한 컬럼 구조를 가진다.
+
+    Raises:
+        ValueError: 파일명에서 연도를 추출할 수 없는 경우
+
+    Note:
+        - config/ 폴더는 읽기 전용으로 참조 (load_config 기존 동작 그대로)
+        - export_csv(), export_excel() 호출 없음 (파일 쓰기 불필요)
+        - 매핑 실패 대학은 경고 출력 후 결과에서 제외 (기존 merge_campuses 동작)
+    """
+    # config 디렉토리는 스크립트 위치 기준으로 결정 (읽기 전용, 기존 main()과 동일)
+    config_dir = Path(__file__).parent / "config"
+
+    # --- Step 1: 설정 파일 로드 ---
+    universities, name_mapping, regions = load_config(config_dir)
+    region_names = regions.get("충청권", [])
+
+    # --- Step 2: 연도별 파일 파싱 및 전처리 ---
+    year_data: dict[int, pd.DataFrame] = {}
+    year_pattern = re.compile(r"(\d{4})(?:년|_)")
+
+    for filename, file_bytes in uploaded_files.items():
+        # macOS NFD → NFC 정규화 (한글 자모 분해 방지)
+        normalized_name = unicodedata.normalize("NFC", filename)
+        match = year_pattern.search(normalized_name)
+        if not match:
+            raise ValueError(
+                f"파일명 '{filename}'에서 연도를 추출할 수 없습니다. "
+                "파일명에 '2024년' 또는 '2024_' 형태의 연도가 포함되어야 합니다."
+            )
+        year = int(match.group(1))
+
+        # BytesIO로 Excel 읽기 (파일 시스템 접근 없음)
+        df_raw = pd.read_excel(io.BytesIO(file_bytes), header=None)
+        cols = find_columns(df_raw)
+        data_start = cols["data_start_row"]
+
+        # 필요한 컬럼만 추출 (read_excel 내부 로직 인라인 재현)
+        df = df_raw.iloc[data_start:, [
+            cols["학교명"],
+            cols["학교종류"],
+            cols["전임교원수"],
+            cols["SCI논문수"],
+        ]].copy()
+        df.columns = ["학교명", "학교종류", "전임교원수", "SCI논문수"]
+        df["학교명"] = df["학교명"].astype(str).str.strip()
+        df["학교종류"] = df["학교종류"].astype(str).str.strip()
+        df["전임교원수"] = pd.to_numeric(df["전임교원수"], errors="coerce").fillna(0.0)
+        df["SCI논문수"] = pd.to_numeric(df["SCI논문수"], errors="coerce").fillna(0.0)
+        df = df.reset_index(drop=True)
+
+        # 기존 함수 재사용: 필터링 → 캠퍼스 합산 → 1인당 논문수 계산
+        df = filter_universities(df)
+        df = merge_campuses(df, name_mapping)
+        df = calculate_metrics(df)
+        year_data[year] = df
+
+    # --- Step 3: 순위 계산 ---
+    all_national: list[tuple[int, pd.DataFrame]] = []
+    all_region: list[tuple[int, pd.DataFrame]] = []
+
+    for year in sorted(year_data.keys()):
+        national_df, region_df = calculate_rankings(year_data[year], region_names)
+        all_national.append((year, national_df))
+        all_region.append((year, region_df))
+
+    # --- Step 4: 연도별 결과 통합 (export_csv 내부 로직 재현, 쓰기 없음) ---
+    national_frames = []
+    for year, ndf in all_national:
+        tmp = ndf[["학교명", "전임교원수", "SCI논문수", "1인당논문수", "전국순위"]].copy()
+        tmp.insert(0, "연도", year)
+        national_frames.append(tmp)
+
+    national_combined = pd.concat(national_frames, ignore_index=True)
+    national_combined = national_combined.rename(columns={"SCI논문수": "SCI/SCOPUS논문수"})
+    national_combined = national_combined.sort_values(
+        ["연도", "전국순위"], ascending=[True, True]
+    ).reset_index(drop=True)
+
+    region_frames = []
+    for year, rdf in all_region:
+        tmp = rdf[["학교명", "전임교원수", "SCI논문수", "1인당논문수", "충청권순위", "전국순위"]].copy()
+        tmp.insert(0, "연도", year)
+        region_frames.append(tmp)
+
+    region_combined = pd.concat(region_frames, ignore_index=True)
+    region_combined = region_combined.rename(columns={"SCI논문수": "SCI/SCOPUS논문수"})
+    region_combined = region_combined.sort_values(
+        ["연도", "충청권순위"], ascending=[True, True]
+    ).reset_index(drop=True)
+
+    return national_combined, region_combined
+
+
+# ---------------------------------------------------------------------------
+# 12. 메인 함수
 # ---------------------------------------------------------------------------
 def main():
     script_dir = Path(__file__).parent
