@@ -25,7 +25,7 @@ from report_app import chart_generator as cg
 from report_app import data_loader as dl
 from report_app import gpt_reporter as gpt
 from report_app import report_builder as rb
-from report_app.config import NATIONAL_CSV, REGIONAL_CSV, REPORT_DIR, UNIVERSITY, IS_CLOUD
+from report_app.config import NATIONAL_CSV, REGIONAL_CSV, REPORT_DIR, UNIVERSITY, IS_CLOUD, COMPARE_GROUP, COMPARE_GROUP_NAME
 
 # 컴포넌트 import
 from report_app.components.metric_card import render_metric_cards
@@ -100,16 +100,21 @@ def _calc_stats():
 
     data_loader 모듈의 5개 함수를 호출하여 호서대 추이, 평균, 순위 변화,
     전년대비 증감, 비교군 데이터를 계산하고 session_state에 저장한다.
-    데이터 로드 직후 또는 연도 변경 시 호출해야 한다.
+    데이터 로드 직후 또는 연도/필터 변경 시 호출해야 한다.
+
+    Note:
+        - 커스텀 비교군이 설정된 경우 (_custom_compare_group) 해당 목록을 사용한다.
+        - 미설정 시 config.COMPARE_GROUP 기본값을 사용한다.
     """
     nat = st.session_state.national_df
     reg = st.session_state.regional_df
     year = st.session_state.selected_year
+    cmp = st.session_state.get("_custom_compare_group", None)
     st.session_state.hoseo_trend = dl.get_hoseo_trend(nat, reg)
-    st.session_state.averages = dl.get_averages(nat, reg)
+    st.session_state.averages = dl.get_averages(nat, reg, compare_group=cmp)
     st.session_state.rank_changes = dl.get_rank_changes(nat, reg)
     st.session_state.yoy_changes = dl.get_yoy_changes(reg, year)
-    st.session_state.compare_data = dl.get_compare_group_data(nat, reg, year)
+    st.session_state.compare_data = dl.get_compare_group_data(nat, reg, year, compare_group=cmp)
 
 
 # ===========================================================================
@@ -245,8 +250,12 @@ def _render_step1():
     else:
         st.info("위에서 데이터 소스를 선택하세요.")
 
-    # --- 하단 다음 단계 버튼 (데이터가 로드된 경우에만 활성화) ---
+    # --- 데이터 필터링 (데이터 로드 후 표시) ---
     if st.session_state.get("data_loaded"):
+        st.divider()
+        _render_data_filter()
+
+        # --- 하단 다음 단계 버튼 ---
         st.divider()
         _, _, col_next = st.columns([1, 4, 1])
         col_next.button(
@@ -256,6 +265,169 @@ def _render_step1():
             args=(2,),
             use_container_width=True,
         )
+
+
+def _render_data_filter():
+    """데이터 필터링 UI를 렌더링한다.
+
+    로드된 전체 데이터에서 분석에 사용할 연도 범위와
+    비교 대학을 선택할 수 있다. 필터 적용 시 session_state의
+    DataFrame을 필터링된 버전으로 교체하고 통계를 재계산한다.
+
+    필터 항목:
+        - 분석 연도: 전체 연도 중 원하는 연도만 선택 (multiselect)
+        - 기준 연도: 선택된 연도 중 보고서 기준 연도 (selectbox)
+        - 비교 대학: 비교군 대학 커스텀 선택 (multiselect)
+
+    Note:
+        - 호서대학교는 비교군에서 제외 불가 (자동 포함)
+        - 필터가 변경되면 통계를 재계산한다
+    """
+    nat_df = st.session_state.national_df
+    reg_df = st.session_state.regional_df
+
+    if nat_df is None or reg_df is None:
+        return
+
+    # 원본 DataFrame 보관 (필터 변경 시 원본에서 다시 필터링)
+    if "_raw_national_df" not in st.session_state:
+        st.session_state["_raw_national_df"] = nat_df.copy()
+        st.session_state["_raw_regional_df"] = reg_df.copy()
+
+    # 필터링은 항상 원본 기준으로 수행
+    nat_df = st.session_state["_raw_national_df"]
+    reg_df = st.session_state["_raw_regional_df"]
+
+    st.markdown(
+        '<div class="ir-chart-card" style="margin-bottom:1rem;">'
+        '<div class="ir-chart-header">'
+        '<div class="ir-chart-title">🔍 데이터 필터링</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption("분석에 사용할 연도와 비교 대학을 선택하세요. 전체 데이터 중 원하는 부분만 분석할 수 있습니다.")
+
+    # --- 연도 필터 ---
+    all_years = sorted(nat_df["연도"].unique().tolist())
+    # 이전에 선택한 연도가 있으면 유지, 없으면 전체 선택
+    prev_years = st.session_state.get("_filter_years", all_years)
+    # 유효한 연도만 남기기
+    prev_years = [y for y in prev_years if y in all_years]
+    if not prev_years:
+        prev_years = all_years
+
+    col_year, col_base = st.columns([3, 1])
+    with col_year:
+        selected_years = st.multiselect(
+            "분석 연도 선택",
+            options=all_years,
+            default=prev_years,
+            key="_filter_years_widget",
+            help="분석에 포함할 연도를 선택하세요. 최소 1개 이상 필요합니다.",
+        )
+    with col_base:
+        if selected_years:
+            year_options = sorted(selected_years, reverse=True)
+            prev_base = st.session_state.get("selected_year", year_options[0])
+            default_idx = year_options.index(prev_base) if prev_base in year_options else 0
+            base_year = st.selectbox(
+                "기준 연도",
+                options=year_options,
+                index=default_idx,
+                key="_filter_base_year",
+                help="보고서의 기준이 되는 연도",
+            )
+        else:
+            st.warning("연도를 1개 이상 선택하세요.")
+            base_year = None
+
+    # --- 비교 대학 필터 ---
+    # 충청권 대학 목록 (전체)
+    all_regional_univs = sorted(reg_df["학교명"].unique().tolist())
+    # 기본 비교군에서 호서대 제외한 목록
+    default_compare = [u for u in COMPARE_GROUP if u != UNIVERSITY]
+    available_compare = [u for u in all_regional_univs if u != UNIVERSITY]
+
+    prev_compare = st.session_state.get("_filter_compare", default_compare)
+    prev_compare = [u for u in prev_compare if u in available_compare]
+    if not prev_compare:
+        prev_compare = default_compare
+
+    selected_compare = st.multiselect(
+        f"비교 대학 선택 (기본: {COMPARE_GROUP_NAME})",
+        options=available_compare,
+        default=prev_compare,
+        key="_filter_compare_widget",
+        help=f"{UNIVERSITY}는 자동 포함됩니다. 비교할 대학을 추가/제거하세요.",
+    )
+
+    # --- 필터 적용 미리보기 ---
+    if selected_years and base_year:
+        filtered_nat = nat_df[nat_df["연도"].isin(selected_years)]
+        filtered_reg = reg_df[reg_df["연도"].isin(selected_years)]
+
+        compare_group_final = list(set([UNIVERSITY] + selected_compare))
+
+        col_info1, col_info2, col_info3 = st.columns(3)
+        col_info1.metric("분석 연도", f"{len(selected_years)}개 / {len(all_years)}개")
+        col_info2.metric("기준 연도", f"{base_year}년")
+        col_info3.metric("비교 대학", f"{len(compare_group_final)}개교")
+
+        with st.expander("📋 필터링된 데이터 미리보기", expanded=False):
+            tab_nat, tab_reg = st.tabs(["전국 데이터", "충청권 데이터"])
+            with tab_nat:
+                st.dataframe(
+                    filtered_nat[filtered_nat["학교명"].isin(compare_group_final)].sort_values(["연도", "전국순위"]),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            with tab_reg:
+                st.dataframe(
+                    filtered_reg.sort_values(["연도", "충청권순위"]),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+        # --- 필터 적용 버튼 ---
+        changed = (
+            sorted(selected_years) != sorted(st.session_state.get("_filter_years", all_years))
+            or base_year != st.session_state.get("selected_year")
+            or sorted(selected_compare) != sorted(st.session_state.get("_filter_compare", default_compare))
+        )
+
+        if changed:
+            st.info("⚡ 필터가 변경되었습니다. [적용] 버튼을 눌러 통계를 갱신하세요.")
+
+        if st.button(
+            "✅ 필터 적용" if changed else "✅ 필터 적용됨",
+            type="primary" if changed else "secondary",
+            use_container_width=True,
+            key="apply_filter",
+        ):
+            # 필터 상태 저장
+            st.session_state["_filter_years"] = selected_years
+            st.session_state["_filter_compare"] = selected_compare
+            st.session_state["_filter_compare_group"] = compare_group_final
+
+            # 필터링된 DataFrame 적용
+            st.session_state.national_df = filtered_nat
+            st.session_state.regional_df = filtered_reg
+            st.session_state.selected_year = base_year
+
+            # 비교군 동적 변경을 위해 config의 COMPARE_GROUP을 우회
+            st.session_state["_custom_compare_group"] = compare_group_final
+
+            # 통계 재계산
+            _calc_stats()
+            # 차트 캐시 초기화 (데이터 변경됨)
+            st.session_state.charts = {}
+            st.success("✅ 필터 적용 완료! 통계가 갱신되었습니다.")
+            st.rerun()
+    else:
+        if not selected_years:
+            st.warning("⚠️ 분석 연도를 1개 이상 선택해주세요.")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def _render_source_raw():
@@ -1078,6 +1250,11 @@ def _render_step5():
             "report_buf": None,
             "data_loaded": False,
             "data_source": None,
+            "_raw_national_df": None,
+            "_raw_regional_df": None,
+            "_filter_years": None,
+            "_filter_compare": None,
+            "_custom_compare_group": None,
         }
         for k, v in reset_keys.items():
             st.session_state[k] = v

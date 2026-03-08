@@ -100,9 +100,15 @@ def get_hoseo_trend(
 def get_averages(
     national_df: pd.DataFrame,
     regional_df: pd.DataFrame,
+    compare_group: list[str] | None = None,
 ) -> dict[int, dict]:
     """
     연도별 전국/충청권/비교군 1인당논문수 평균을 반환한다.
+
+    Args:
+        national_df: 전국 대학 데이터
+        regional_df: 충청권 대학 데이터
+        compare_group: 비교 대학 목록. None이면 config.COMPARE_GROUP 사용.
 
     Returns:
         {
@@ -114,6 +120,7 @@ def get_averages(
             ...
         }
     """
+    cmp = compare_group if compare_group is not None else COMPARE_GROUP
     result: dict[int, dict] = {}
     years = sorted(national_df["연도"].unique())
 
@@ -121,7 +128,7 @@ def get_averages(
         nat_year = national_df[national_df["연도"] == year]
         reg_year = regional_df[regional_df["연도"] == year]
         cmp_year = national_df[
-            (national_df["연도"] == year) & (national_df["학교명"].isin(COMPARE_GROUP))
+            (national_df["연도"] == year) & (national_df["학교명"].isin(cmp))
         ]
 
         result[int(year)] = {
@@ -247,9 +254,16 @@ def get_compare_group_data(
     national_df: pd.DataFrame,
     regional_df: pd.DataFrame,
     year: int,
+    compare_group: list[str] | None = None,
 ) -> list[dict]:
     """
-    비교 5개 대학의 특정 연도 데이터를 반환한다.
+    비교 대학의 특정 연도 데이터를 반환한다.
+
+    Args:
+        national_df: 전국 대학 데이터
+        regional_df: 충청권 대학 데이터
+        year: 기준 연도
+        compare_group: 비교 대학 목록. None이면 config.COMPARE_GROUP 사용.
 
     Returns:
         [
@@ -264,11 +278,12 @@ def get_compare_group_data(
             ...
         ]
     """
+    cmp = compare_group if compare_group is not None else COMPARE_GROUP
     nat_year = national_df[
-        (national_df["연도"] == year) & (national_df["학교명"].isin(COMPARE_GROUP))
+        (national_df["연도"] == year) & (national_df["학교명"].isin(cmp))
     ]
     reg_year = regional_df[
-        (regional_df["연도"] == year) & (regional_df["학교명"].isin(COMPARE_GROUP))
+        (regional_df["연도"] == year) & (regional_df["학교명"].isin(cmp))
     ]
 
     reg_rank_map = {
