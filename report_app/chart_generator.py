@@ -269,25 +269,32 @@ def create_rank_trend_chart(
     reg_ranks = [rank_changes[y]["충청권순위"] for y in years]
     nat_ranks = [rank_changes[y]["전국순위"] for y in years]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    # 충청권 순위 데이터 존재 여부 확인 (비충청권 대학은 None)
+    has_regional = any(r is not None for r in reg_ranks)
 
-    # 충청권 순위
-    ax1.plot(years, reg_ranks, linestyle="-", marker="o", color="#3F3F46",
-             linewidth=2.5, markersize=8, markerfacecolor="white", markeredgewidth=2)
-    for x, y in zip(years, reg_ranks):
-        ax1.annotate(f"{y}위", (x, y), textcoords="offset points", xytext=(0, 10),
-                     ha="center", fontsize=10, color="#3F3F46", fontweight="bold")
-    ax1.set_title(f"{univ} 충청권 순위 변화", fontsize=12, fontweight="bold")
-    ax1.set_xlabel("연도")
-    ax1.set_ylabel("충청권 순위")
-    ax1.invert_yaxis()
-    ax1.set_xticks(years)
-    ax1.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    ax1.grid(linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
-    ax1.set_facecolor("white")
-    ax1.spines[["top", "right"]].set_visible(False)
-    ax1.spines[["left", "bottom"]].set_color("#D4D4D8")
-    ax1.tick_params(colors="#525252")
+    if has_regional:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    else:
+        fig, ax2 = plt.subplots(figsize=(7, 5))
+
+    if has_regional:
+        # 충청권 순위
+        ax1.plot(years, reg_ranks, linestyle="-", marker="o", color="#3F3F46",
+                 linewidth=2.5, markersize=8, markerfacecolor="white", markeredgewidth=2)
+        for x, y in zip(years, reg_ranks):
+            ax1.annotate(f"{y}위", (x, y), textcoords="offset points", xytext=(0, 10),
+                         ha="center", fontsize=10, color="#3F3F46", fontweight="bold")
+        ax1.set_title(f"{univ} 충청권 순위 변화", fontsize=12, fontweight="bold")
+        ax1.set_xlabel("연도")
+        ax1.set_ylabel("충청권 순위")
+        ax1.invert_yaxis()
+        ax1.set_xticks(years)
+        ax1.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+        ax1.grid(linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+        ax1.set_facecolor("white")
+        ax1.spines[["top", "right"]].set_visible(False)
+        ax1.spines[["left", "bottom"]].set_color("#D4D4D8")
+        ax1.tick_params(colors="#525252")
 
     # 전국 순위
     ax2.plot(years, nat_ranks, linestyle="--", marker="s", color="#71717A",
