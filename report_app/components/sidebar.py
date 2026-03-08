@@ -141,12 +141,11 @@ def render_sidebar(
                 is_active=is_active,
                 is_disabled=is_disabled,
             )
-            if not is_disabled:
-                # 클릭 감지: 버튼이 눌렸고 현재 모듈과 다를 때만 변경
-                btn_key = f"sidebar_mod_{module_id}"
-                if st.session_state.get(btn_key):
-                    selected_module = module_id
-                    st.session_state[btn_key] = False  # 소비
+
+        # 클릭 감지: on_click 콜백이 설정한 플래그 확인
+        clicked_mod = st.session_state.pop("_nav_module_clicked", None)
+        if clicked_mod and clicked_mod != current_module:
+            selected_module = clicked_mod
 
         # ── 3. 워크플로우 단계 (home 모듈이 아닐 때만 표시) ────────────────
         if current_module != "home":
@@ -161,15 +160,18 @@ def render_sidebar(
                 is_done = (step_num < current_step)
                 is_clickable = (step_num <= max_step)
 
-                clicked = _render_step_item(
+                _render_step_item(
                     index=i,
                     label=step_label,
                     is_current=is_current,
                     is_done=is_done,
                     is_clickable=is_clickable,
                 )
-                if clicked:
-                    selected_step = step_num
+
+            # 단계 클릭 감지
+            clicked_step = st.session_state.pop("_nav_step_clicked", None)
+            if clicked_step is not None and clicked_step != current_step:
+                selected_step = clicked_step
 
         # ── 4. API Key 상태 + 설정 영역 ────────────────────────────────────
         st.markdown(
@@ -184,8 +186,7 @@ def render_sidebar(
             unsafe_allow_html=True,
         )
         _render_footer()
-        if st.session_state.get("sidebar_reset_clicked"):
-            st.session_state["sidebar_reset_clicked"] = False
+        if st.session_state.pop("sidebar_reset_clicked", False):
             selected_module = "home"
             selected_step = None
 
@@ -281,11 +282,14 @@ def _render_module_item(
                 unsafe_allow_html=True,
             )
     else:
-        # 일반 클릭 가능 모듈
+        # 일반 클릭 가능 모듈 — on_click 콜백으로 안전하게 클릭 감지
         st.button(
             f"{icon}  {label}",
             key=f"sidebar_mod_{module_id}",
             use_container_width=True,
+            on_click=lambda mid=module_id: st.session_state.__setitem__(
+                "_nav_module_clicked", mid
+            ),
         )
 
 
@@ -365,13 +369,16 @@ def _render_step_item(
         )
         return False
 
-    # 완료 단계 (클릭 가능): 일반 버튼
-    clicked = st.button(
+    # 완료 단계 (클릭 가능): on_click 콜백으로 안전하게 클릭 감지
+    st.button(
         f"  ✓  {label}",
         key=f"sidebar_step_{index}",
         use_container_width=True,
+        on_click=lambda sn=step_num: st.session_state.__setitem__(
+            "_nav_step_clicked", sn
+        ),
     )
-    return clicked
+    return False  # 콜백이 플래그 설정, 반환값 사용 안 함
 
 
 def _render_api_key_section(api_key_set: bool) -> None:
