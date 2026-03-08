@@ -127,8 +127,15 @@ def _add_trend_table(doc: Document, hoseo_trend: dict[int, dict]):
     doc.add_paragraph()
 
 
-def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int):
-    """비교군 5개교 현황 표."""
+def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int, univ: str = UNIVERSITY):
+    """비교군 5개교 현황 표.
+
+    Args:
+        doc: python-docx Document 객체
+        compare_data: 비교군 대학별 데이터 리스트
+        year: 기준 연도
+        univ: 강조 표시할 대학명 (기본값: config의 UNIVERSITY)
+    """
     headers = ["대학명", "전임교원수", "논문수", "1인당 논문수", "전국 순위", "충청권 순위"]
 
     table = doc.add_table(rows=1 + len(compare_data), cols=len(headers))
@@ -143,7 +150,7 @@ def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int)
         _set_font(run, size_pt=9, bold=True, color_hex="FFFFFF")
 
     for row_idx, d in enumerate(compare_data):
-        is_hoseo = d["학교명"] == UNIVERSITY
+        is_hoseo = d["학교명"] == univ
         vals = [
             d["학교명"],
             f"{d['전임교원수']:,}명",
@@ -216,6 +223,7 @@ def build_report(
     rank_changes: dict[int, dict],
     charts: dict[str, BytesIO],
     narratives: dict[str, str],
+    university: str | None = None,
 ) -> BytesIO:
     """
     모든 섹션을 조립하여 Word BytesIO 파일을 반환한다.
@@ -229,7 +237,10 @@ def build_report(
         rank_changes: 순위 변화
         charts: {"trend": BytesIO, "bar": BytesIO, "avg": BytesIO, "rank": BytesIO, "compare": BytesIO}
         narratives: {"trend": str, "comparison": str, "regional": str, "yoy": str}
+        university: 보고서에 표시할 대학명. None이면 config의 UNIVERSITY 사용
     """
+    # university 파라미터가 없으면 config 기본값 사용
+    univ = university or UNIVERSITY
     doc = Document()
 
     # ----- 페이지 여백 설정 -----
@@ -246,7 +257,7 @@ def build_report(
     doc.add_paragraph()
     title_p = doc.add_paragraph()
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    title_run = title_p.add_run(f"{UNIVERSITY}")
+    title_run = title_p.add_run(f"{univ}")
     _set_font(title_run, size_pt=16, bold=True, color_hex="2E75B6")
 
     subtitle_p = doc.add_paragraph()
@@ -312,7 +323,7 @@ def build_report(
     # ========================================================
     _add_heading(doc, f"4. {COMPARE_GROUP_NAME} 현황 ({year}년)")
 
-    _add_compare_group_table(doc, compare_data, year)
+    _add_compare_group_table(doc, compare_data, year, univ=univ)
 
     if charts.get("compare"):
         _add_image(doc, charts["compare"], width_cm=11.0)

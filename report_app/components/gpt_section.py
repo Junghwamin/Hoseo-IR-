@@ -15,6 +15,7 @@ def render_gpt_section(
     hint: str,
     generate_fn: Callable | None = None,
     generate_args: tuple = (),
+    generate_kwargs: dict | None = None,
 ):
     """GPT 서술 섹션 하나를 렌더링한다. @st.fragment로 부분 리렌더링 지원.
 
@@ -115,7 +116,8 @@ def render_gpt_section(
             with st.spinner(f"{title} 생성 중..."):
                 try:
                     # generate_fn 호출 — 결과 문자열을 session_state에 저장
-                    result = generate_fn(*generate_args)
+                    _kw = generate_kwargs or {}
+                    result = generate_fn(*generate_args, **_kw)
                     st.session_state[section_key] = result
                 except Exception as e:
                     st.error(f"GPT 오류: {e}")

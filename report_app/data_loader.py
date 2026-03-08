@@ -54,9 +54,15 @@ def load_all_data(
 def get_hoseo_trend(
     national_df: pd.DataFrame,
     regional_df: pd.DataFrame,
+    university: str | None = None,
 ) -> dict[int, dict]:
     """
-    호서대학교의 연도별 핵심 수치를 반환한다.
+    대상 대학의 연도별 핵심 수치를 반환한다.
+
+    Args:
+        national_df: 전국 대학 데이터
+        regional_df: 충청권 대학 데이터
+        university: 분석 대상 대학명. None이면 config.UNIVERSITY 사용.
 
     Returns:
         {
@@ -70,10 +76,11 @@ def get_hoseo_trend(
             ...
         }
     """
+    univ = university or UNIVERSITY
     result: dict[int, dict] = {}
 
-    national_hoseo = national_df[national_df["학교명"] == UNIVERSITY].copy()
-    regional_hoseo = regional_df[regional_df["학교명"] == UNIVERSITY].copy()
+    national_hoseo = national_df[national_df["학교명"] == univ].copy()
+    regional_hoseo = regional_df[regional_df["학교명"] == univ].copy()
 
     for _, row in national_hoseo.iterrows():
         year = int(row["연도"])
@@ -147,9 +154,15 @@ def get_averages(
 def get_rank_changes(
     national_df: pd.DataFrame,
     regional_df: pd.DataFrame,
+    university: str | None = None,
 ) -> dict[int, dict]:
     """
-    호서대학교의 연도별 충청권·전국 순위 및 전년대비 변화를 반환한다.
+    대상 대학의 연도별 충청권·전국 순위 및 전년대비 변화를 반환한다.
+
+    Args:
+        national_df: 전국 대학 데이터
+        regional_df: 충청권 대학 데이터
+        university: 분석 대상 대학명. None이면 config.UNIVERSITY 사용.
 
     Returns:
         {
@@ -162,8 +175,9 @@ def get_rank_changes(
             ...
         }
     """
-    hoseo_nat = national_df[national_df["학교명"] == UNIVERSITY].sort_values("연도")
-    hoseo_reg = regional_df[regional_df["학교명"] == UNIVERSITY].sort_values("연도")
+    univ = university or UNIVERSITY
+    hoseo_nat = national_df[national_df["학교명"] == univ].sort_values("연도")
+    hoseo_reg = regional_df[regional_df["학교명"] == univ].sort_values("연도")
 
     result: dict[int, dict] = {}
     prev_nat_rank: int | None = None
@@ -199,10 +213,17 @@ def get_rank_changes(
 def get_yoy_changes(
     regional_df: pd.DataFrame,
     year: int,
+    university: str | None = None,
 ) -> dict:
     """
     충청권 내 대학의 전년대비 1인당논문수 증감률을 계산하여
     상위 3개 / 하위 3개 대학을 반환한다.
+
+    Args:
+        regional_df: 충청권 대학 데이터
+        year: 기준 연도 (전년과 비교)
+        university: 분석 대상 대학명. None이면 config.UNIVERSITY 사용.
+            반환값의 "호서" 키에 해당 대학의 증감률이 담긴다.
 
     Returns:
         {
@@ -211,6 +232,7 @@ def get_yoy_changes(
             "호서": {"학교명": str, "증감률": float, "기준연도": float, "비교연도": float} | None,
         }
     """
+    univ = university or UNIVERSITY
     prev_year = year - 1
     cur = regional_df[regional_df["연도"] == year][["학교명", "1인당논문수"]].copy()
     prv = regional_df[regional_df["연도"] == prev_year][["학교명", "1인당논문수"]].copy()
@@ -240,7 +262,7 @@ def get_yoy_changes(
     top3 = [_row_to_dict(r) for _, r in merged.head(3).iterrows()]
     bot3 = [_row_to_dict(r) for _, r in merged.tail(3).iterrows()]
 
-    hoseo_rows = merged[merged["학교명"] == UNIVERSITY]
+    hoseo_rows = merged[merged["학교명"] == univ]
     hoseo = _row_to_dict(hoseo_rows.iloc[0]) if not hoseo_rows.empty else None
 
     return {"상위": top3, "하위": bot3, "호서": hoseo}

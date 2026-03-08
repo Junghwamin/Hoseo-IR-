@@ -71,6 +71,11 @@ _NARRATIVE_KEYS = (
 )
 
 
+def _target_univ() -> str:
+    """현재 분석 대상 대학명을 반환한다. 미설정 시 config.UNIVERSITY 기본값."""
+    return st.session_state.get("_target_university", UNIVERSITY)
+
+
 def _go(step: int):
     """스텝 이동 헬퍼. narrative 값을 _saved_ 키에 백업한다.
 
@@ -110,10 +115,11 @@ def _calc_stats():
     reg = st.session_state.regional_df
     year = st.session_state.selected_year
     cmp = st.session_state.get("_custom_compare_group", None)
-    st.session_state.hoseo_trend = dl.get_hoseo_trend(nat, reg)
+    univ = st.session_state.get("_target_university", None)
+    st.session_state.hoseo_trend = dl.get_hoseo_trend(nat, reg, university=univ)
     st.session_state.averages = dl.get_averages(nat, reg, compare_group=cmp)
-    st.session_state.rank_changes = dl.get_rank_changes(nat, reg)
-    st.session_state.yoy_changes = dl.get_yoy_changes(reg, year)
+    st.session_state.rank_changes = dl.get_rank_changes(nat, reg, university=univ)
+    st.session_state.yoy_changes = dl.get_yoy_changes(reg, year, university=univ)
     st.session_state.compare_data = dl.get_compare_group_data(nat, reg, year, compare_group=cmp)
 
 
@@ -341,10 +347,30 @@ def _render_data_filter():
         st.markdown('</div>', unsafe_allow_html=True)
         return
 
+    # ── 1.5. 분석 대상 대학 선택 ──────────────────────────────────────────
+    st.markdown("---")
+    st.markdown("**🏫 분석 대상 대학 선택** — 보고서의 주인공이 될 대학을 선택하세요")
+    st.caption("전국 데이터에서 대학명을 검색할 수 있습니다. 기본값: 호서대학교")
+
+    # 전국 데이터의 모든 대학 목록 (검색용)
+    all_univs = sorted(nat_df["학교명"].unique().tolist())
+    prev_target = st.session_state.get("_target_university", UNIVERSITY)
+    if prev_target not in all_univs:
+        prev_target = UNIVERSITY if UNIVERSITY in all_univs else all_univs[0]
+    default_idx = all_univs.index(prev_target)
+
+    target_university = st.selectbox(
+        "분석 대상 대학",
+        options=all_univs,
+        index=default_idx,
+        key="_filter_target_univ",
+        help="이 대학을 기준으로 추이, 순위, 비교 분석을 수행합니다. 대학명 일부를 입력하면 검색됩니다.",
+    )
+
     # ── 2. 충청권 대학 직접 선택 (체크박스 테이블) ─────────────────────────
     st.markdown("---")
     st.markdown("**충청권 대학 선택** — 분석에 포함할 대학을 체크하세요")
-    st.caption(f"✅ {UNIVERSITY}는 분석 대상이므로 항상 포함됩니다.")
+    st.caption(f"✅ {target_university}는 분석 대상이므로 항상 포함됩니다.")
 
     # 기준 연도의 충청권 데이터로 대학 목록 생성
     reg_base = reg_df[reg_df["연도"] == base_year].sort_values("충청권순위")
@@ -359,14 +385,14 @@ def _render_data_filter():
     univ_rows = []
     for _, row in reg_base.iterrows():
         name = row["학교명"]
-        is_hoseo = (name == UNIVERSITY)
-        # 이전 선택이 있으면 복원, 없으면 기본 비교군 + 호서대만 선택
+        is_target = (name == target_university)
+        # 이전 선택이 있으면 복원, 없으면 기본 비교군 + 대상 대학만 선택
         if prev_selected_univs is not None:
             checked = name in prev_selected_univs
         else:
-            checked = name in COMPARE_GROUP
+            checked = name in COMPARE_GROUP or is_target
         univ_rows.append({
-            "선택": True if is_hoseo else checked,
+            "선택": True if is_target else checked,
             "학교명": name,
             "전임교원수": int(row["전임교원수"]) if pd.notna(row.get("전임교원수")) else 0,
             "SCI/SCOPUS논문수": round(float(row["SCI/SCOPUS논문수"]), 1) if pd.notna(row.get("SCI/SCOPUS논문수")) else 0,
@@ -398,10 +424,10 @@ def _render_data_filter():
         key="_univ_selector",
     )
 
-    # 호서대 강제 포함
+    # 대상 대학 강제 포함
     selected_univs = edited_df[edited_df["선택"] == True]["학교명"].tolist()  # noqa: E712
-    if UNIVERSITY not in selected_univs:
-        selected_univs.append(UNIVERSITY)
+    if target_university not in selected_univs:
+        selected_univs.append(target_university)
 
     selected_count = len(selected_univs)
     total_count = len(check_df)
@@ -412,8 +438,8 @@ def _render_data_filter():
     st.markdown("**비교군 설정** — 선택된 대학 중 직접 비교할 대학을 지정하세요")
     st.caption("비교군은 평균 계산, 비교 차트에 사용됩니다.")
 
-    compare_candidates = [u for u in selected_univs if u != UNIVERSITY]
-    default_compare = [u for u in COMPARE_GROUP if u != UNIVERSITY and u in compare_candidates]
+    compare_candidates = [u for u in selected_univs if u != target_university]
+    default_compare = [u for u in COMPARE_GROUP if u != target_university and u in compare_candidates]
     prev_compare = st.session_state.get("_filter_compare", default_compare)
     prev_compare = [u for u in prev_compare if u in compare_candidates] or default_compare
 
@@ -422,9 +448,9 @@ def _render_data_filter():
         options=compare_candidates,
         default=prev_compare,
         key="_filter_compare_widget",
-        help=f"{UNIVERSITY}는 자동 포함. 직접 비교할 대학을 선택하세요.",
+        help=f"{target_university}는 자동 포함. 직접 비교할 대학을 선택하세요.",
     )
-    compare_group_final = list(set([UNIVERSITY] + selected_compare))
+    compare_group_final = list(set([target_university] + selected_compare))
 
     # ── 4. 필터 요약 + 미리보기 ────────────────────────────────────────────
     st.markdown("---")
@@ -470,6 +496,7 @@ def _render_data_filter():
         st.session_state["_filter_compare"] = selected_compare
         st.session_state["_filter_selected_univs"] = selected_univs
         st.session_state["_filter_compare_group"] = compare_group_final
+        st.session_state["_target_university"] = target_university
 
         # 필터링된 DataFrame 적용
         # 전국 데이터: 연도만 필터 (전국 평균/순위 계산에 전체 대학 필요)
@@ -484,7 +511,7 @@ def _render_data_filter():
         # 통계 재계산 + 차트 캐시 초기화
         _calc_stats()
         st.session_state.charts = {}
-        st.success("✅ 필터 적용 완료!")
+        st.success(f"✅ 필터 적용 완료! 분석 대상: {target_university}")
         st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -825,7 +852,7 @@ def _render_step2():
             h = hoseo.get(y, {})
             avg_rows.append({
                 "연도": y,
-                f"{UNIVERSITY}": h.get("1인당논문수"),
+                f"{_target_univ()}": h.get("1인당논문수"),
                 "전국 평균": a["전국평균"],
                 "충청권 평균": a["충청권평균"],
                 "비교군 평균": a["비교군평균"],
@@ -854,7 +881,7 @@ def _render_step2():
                 )
             if yoy.get("호서"):
                 st.info(
-                    f"**{UNIVERSITY}**: {yoy['호서']['기준연도']:.4f} → "
+                    f"**{_target_univ()}**: {yoy['호서']['기준연도']:.4f} → "
                     f"{yoy['호서']['비교연도']:.4f}  "
                     f"증감률 **{yoy['호서']['증감률']:+.1f}%**"
                 )
@@ -909,14 +936,15 @@ def _render_step3():
     )
 
     # --- 차트 생성 (캐시) ---
+    _univ = _target_univ()
     if not st.session_state.charts:
         with st.spinner("차트 생성 중..."):
             st.session_state.charts = {
-                "trend": cg.create_trend_chart(hoseo, avgs),
-                "bar": cg.create_comparison_bar(reg_df, year),
-                "avg": cg.create_avg_comparison(hoseo, avgs, year),
-                "rank": cg.create_rank_trend_chart(ranks),
-                "compare": cg.create_compare_group_bar(cmpd, year),
+                "trend": cg.create_trend_chart(hoseo, avgs, university=_univ),
+                "bar": cg.create_comparison_bar(reg_df, year, university=_univ),
+                "avg": cg.create_avg_comparison(hoseo, avgs, year, university=_univ),
+                "rank": cg.create_rank_trend_chart(ranks, university=_univ),
+                "compare": cg.create_compare_group_bar(cmpd, year, university=_univ),
             }
 
     charts = st.session_state.charts
@@ -928,7 +956,7 @@ def _render_step3():
         h = hoseo.get(y, {})
         trend_rows.append({
             "연도": y,
-            f"{UNIVERSITY}": h.get("1인당논문수"),
+            f"{_target_univ()}": h.get("1인당논문수"),
             "전국 평균": a.get("전국평균"),
             "충청권 평균": a.get("충청권평균"),
             "비교군 평균": a.get("비교군평균"),
@@ -944,7 +972,7 @@ def _render_step3():
     avg_data = avgs.get(year, {})
     h_data = hoseo.get(year, {})
     avg_df = pd.DataFrame([{
-        f"{UNIVERSITY}": h_data.get("1인당논문수"),
+        f"{_target_univ()}": h_data.get("1인당논문수"),
         "전국 평균": avg_data.get("전국평균"),
         "충청권 평균": avg_data.get("충청권평균"),
         "비교군 평균": avg_data.get("비교군평균"),
@@ -1075,22 +1103,23 @@ def _render_step4():
         st.stop()
 
     client = OpenAI(api_key=st.session_state.api_key)
+    _univ = _target_univ()
 
     # --- 전체 일괄 생성 버튼 ---
     if st.button("🤖 전체 섹션 일괄 생성", type="primary", use_container_width=True, key="gen_all"):
         progress = st.progress(0, "GPT 서술 생성 준비 중...")
         sections = [
-            ("narrative_trend", gpt.generate_trend_narrative, (client, hoseo, avgs)),
-            ("narrative_comparison", gpt.generate_comparison_narrative, (client, cmpd, avgs, year)),
-            ("narrative_regional", gpt.generate_regional_narrative, (client, hoseo, ranks)),
-            ("narrative_yoy", gpt.generate_yoy_narrative, (client, yoy, year)),
+            ("narrative_trend", gpt.generate_trend_narrative, (client, hoseo, avgs), {"university": _univ}),
+            ("narrative_comparison", gpt.generate_comparison_narrative, (client, cmpd, avgs, year), {"university": _univ}),
+            ("narrative_regional", gpt.generate_regional_narrative, (client, hoseo, ranks), {"university": _univ}),
+            ("narrative_yoy", gpt.generate_yoy_narrative, (client, yoy, year), {"university": _univ}),
         ]
         _gen_ok = False
         try:
-            for i, (key, fn, args) in enumerate(sections):
+            for i, (key, fn, args, kwargs) in enumerate(sections):
                 if not st.session_state.get(key):
                     progress.progress((i + 1) / 4, f"섹션 {i + 1}/4 생성 중...")
-                    st.session_state[key] = fn(*args)
+                    st.session_state[key] = fn(*args, **kwargs)
             _gen_ok = True
         except Exception as e:
             st.error(f"GPT 오류: {e}")
@@ -1103,37 +1132,41 @@ def _render_step4():
     # --- 섹션 1: 연도별 추이 ---
     render_gpt_section(
         section_key="narrative_trend",
-        title="섹션 1. 연도별 1인당논문수 추이",
-        hint="연도별 호서대 수치 변화 및 평균 대비 분석",
+        title=f"섹션 1. {_univ} 연도별 1인당논문수 추이",
+        hint=f"연도별 {_univ} 수치 변화 및 평균 대비 분석",
         generate_fn=gpt.generate_trend_narrative,
         generate_args=(client, hoseo, avgs),
+        generate_kwargs={"university": _univ},
     )
 
     # --- 섹션 2: 평균 비교 ---
     render_gpt_section(
         section_key="narrative_comparison",
         title=f"섹션 2. 전국·충청권·비교군 평균 비교 ({year}년)",
-        hint="전국/충청권/비교군 평균 대비 호서대 위치 분석",
+        hint=f"전국/충청권/비교군 평균 대비 {_univ} 위치 분석",
         generate_fn=gpt.generate_comparison_narrative,
         generate_args=(client, cmpd, avgs, year),
+        generate_kwargs={"university": _univ},
     )
 
     # --- 섹션 3: 충청권 순위 ---
     render_gpt_section(
         section_key="narrative_regional",
-        title="섹션 3. 충청권 순위 변화",
-        hint="충청권·전국 순위 추이 및 순위 변동 해석",
+        title=f"섹션 3. {_univ} 충청권 순위 변화",
+        hint=f"충청권·전국 순위 추이 및 {_univ} 순위 변동 해석",
         generate_fn=gpt.generate_regional_narrative,
         generate_args=(client, hoseo, ranks),
+        generate_kwargs={"university": _univ},
     )
 
     # --- 섹션 4: 전년대비 증감 ---
     render_gpt_section(
         section_key="narrative_yoy",
         title=f"섹션 4. 전년대비 증감 ({year - 1}→{year}년)",
-        hint="충청권 대학별 증감률 및 호서대 변화 해석",
+        hint=f"충청권 대학별 증감률 및 {_univ} 변화 해석",
         generate_fn=gpt.generate_yoy_narrative,
         generate_args=(client, yoy, year),
+        generate_kwargs={"university": _univ},
     )
 
     st.divider()
@@ -1220,7 +1253,7 @@ def _render_step5():
         col_a, col_b = st.columns(2)
         with col_a:
             st.markdown("**기본 정보**")
-            st.markdown(f"- 대학: **{UNIVERSITY}**")
+            st.markdown(f"- 대학: **{_target_univ()}**")
             st.markdown(f"- 기준 연도: **{year}년**")
             st.markdown(f"- 그래프: **{len([c for c in charts.values() if c])}종**")
         with col_b:
@@ -1251,6 +1284,7 @@ def _render_step5():
                 rank_changes=ranks,
                 charts=charts,
                 narratives=narratives,
+                university=_target_univ(),
             )
             progress.progress(1.0, "완료!")
             st.session_state.report_buf = buf
@@ -1260,7 +1294,7 @@ def _render_step5():
 
     # --- 보고서 생성 완료 시 ---
     if st.session_state.get("report_buf"):
-        fname = f"{UNIVERSITY}_연구실적_보고서_{year}.docx"
+        fname = f"{_target_univ()}_연구실적_보고서_{year}.docx"
 
         # 성공 카드
         st.markdown(

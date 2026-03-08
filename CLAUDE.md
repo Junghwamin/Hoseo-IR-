@@ -218,3 +218,9 @@ def get_narrative(client: OpenAI) -> dict[str, str]: ...
 | 2026-03-08 | 신규 생성: `settings.py` |
 | 2026-03-08 | 신규 생성: `research.py` |
 | 2026-03-08 | 신규 생성: `app.py` |
+| 2026-03-08 | 수정: `sidebar.py` |
+| 2026-03-08 | 수정: `research.py` |
+| 2026-03-08 | 수정: `data_loader.py` |
+| 2026-03-08 | 수정: `report_builder.py` |
+| 2026-03-08 | 신규 생성: `gpt_reporter.py` |
+| 2026-03-08 | 수정: `gpt_section.py` |
