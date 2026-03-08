@@ -28,7 +28,7 @@ def render_home() -> str | None:
     st.markdown("""
     <div style="text-align:center; padding:2rem 0 1.5rem;">
         <div style="font-size:2.5rem; margin-bottom:0.5rem;">📊</div>
-        <h2 style="font-size:1.5rem; font-weight:800; color:#18181B; margin:0 0 0.5rem;">
+        <h2 style="font-size:1.5rem; font-weight:800; color:#1a56db; margin:0 0 0.5rem;">
             호서대학교 IR센터 분석 포털
         </h2>
         <p style="font-size:0.9375rem; color:#71717A; margin:0;">

@@ -46,6 +46,15 @@ def get_css() -> str:
     --zinc-900: #18181b;
     --zinc-950: #09090b;
 
+    /* Amplitude 블루 프라이머리 */
+    --amp-blue: #1a56db;
+    --amp-blue-light: #e8f0fe;
+    --amp-blue-hover: #1e40af;
+    --amp-blue-50: #eff6ff;
+    --amp-blue-100: #dbeafe;
+    --amp-blue-600: #2563eb;
+    --amp-blue-700: #1d4ed8;
+
     /* 시맨틱 컬러 */
     --green-600: #16a34a;
     --green-50:  #f0fdf4;
@@ -156,10 +165,10 @@ def get_css() -> str:
 
 /* 활성 항목 */
 .ir-nav-item.active {
-    background: var(--zinc-50);
-    color: var(--zinc-950);
+    background: var(--amp-blue-light);
+    color: var(--amp-blue);
     font-weight: 600;
-    border-left: 3px solid var(--zinc-950);
+    border-left: 3px solid var(--amp-blue);
     padding-left: calc(1rem - 3px);
 }
 
@@ -198,7 +207,7 @@ def get_css() -> str:
 /* Primary 버튼 */
 button[kind="primary"],
 .stButton > button[data-baseweb="button"]:not([kind="secondary"]) {
-    background: var(--zinc-950) !important;
+    background: var(--amp-blue) !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 6px !important;
@@ -211,7 +220,7 @@ button[kind="primary"],
 
 button[kind="primary"]:hover,
 .stButton > button[data-baseweb="button"]:not([kind="secondary"]):hover {
-    background: var(--zinc-800) !important;
+    background: var(--amp-blue-hover) !important;
 }
 
 /* Secondary 버튼 */
@@ -419,8 +428,8 @@ button[kind="secondary"]:hover,
 }
 
 .stTextArea textarea:focus {
-    border-color: var(--zinc-900) !important;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important;
+    border-color: var(--amp-blue) !important;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12) !important;
     outline: none !important;
 }
 
@@ -480,8 +489,8 @@ button[kind="secondary"]:hover,
 }
 
 .stTabs [aria-selected="true"] {
-    color: var(--zinc-950) !important;
-    border-bottom: 2px solid var(--zinc-950) !important;
+    color: var(--amp-blue) !important;
+    border-bottom: 2px solid var(--amp-blue) !important;
     font-weight: 600 !important;
     background: transparent !important;
 }
@@ -506,8 +515,8 @@ button[kind="secondary"]:hover,
 }
 
 [data-testid="stSelectbox"] > div > div:focus-within {
-    border-color: var(--zinc-900) !important;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important;
+    border-color: var(--amp-blue) !important;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12) !important;
 }
 
 
@@ -636,7 +645,7 @@ button[kind="secondary"]:hover,
 }
 
 .ir-onboard-card.active {
-    border-color: var(--zinc-950);
+    border-color: var(--amp-blue);
     border-width: 2px;
 }
 
@@ -720,7 +729,7 @@ button[kind="secondary"]:hover,
 }
 
 .ir-module-card:hover {
-    border-color: var(--zinc-400);
+    border-color: var(--amp-blue);
     transform: translateY(-2px);
 }
 
@@ -768,6 +777,38 @@ button[kind="secondary"]:hover,
     font-weight: 600 !important;
     color: var(--zinc-800) !important;
     font-size: 0.9375rem !important;
+}
+
+
+/* =====================================================
+   25. Amplitude 뱃지 (.ir-badge)
+   ===================================================== */
+.ir-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.ir-badge-blue {
+    background: var(--amp-blue-light);
+    color: var(--amp-blue);
+}
+
+.ir-badge-green {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.ir-badge-amber {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.ir-badge-red {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 </style>

@@ -54,7 +54,7 @@ def render_toolbar(module_name: str, step_name: str | None = None):
 <div class="ir-toolbar">
   <div class="ir-toolbar-left">
     <span class="ir-toolbar-logo">📊</span>
-    <span class="ir-toolbar-title">IR 분석 포털</span>
+    <span class="ir-toolbar-title" style="color:#1a56db;font-weight:700;">IR 분석 포털</span>
   </div>
   <div class="ir-toolbar-center">
     <span class="ir-toolbar-breadcrumb">
@@ -63,7 +63,7 @@ def render_toolbar(module_name: str, step_name: str | None = None):
   </div>
   <div class="ir-toolbar-right">
     <span class="ir-toolbar-date">{today}</span>
-    <span class="ir-toolbar-version">{version}</span>
+    <span class="ir-toolbar-version" style="background:#e8f0fe;color:#1a56db;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:500;">{version}</span>
   </div>
 </div>
 """

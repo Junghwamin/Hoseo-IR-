@@ -96,7 +96,7 @@ def render_sidebar(
             .sidebar-app-name {
                 font-size: 0.9375rem;
                 font-weight: 700;
-                color: #09090B !important;
+                color: #1a56db !important;
                 letter-spacing: -0.02em;
                 line-height: 1.2;
             }
@@ -247,15 +247,15 @@ def _render_module_item(
                 gap: 0.5rem;
                 padding: 0.4rem 0.5rem;
                 border-radius: 0.375rem;
-                background: #F4F4F5;
+                background: #e8f0fe;
                 margin-bottom: 0.125rem;
                 font-size: 0.875rem;
                 font-weight: 600;
-                color: #09090B !important;
+                color: #1a56db !important;
                 cursor: default;
             }}
             .sidebar-nav-icon {{ font-size: 0.9rem; }}
-            .sidebar-nav-label {{ color: #09090B !important; }}
+            .sidebar-nav-label {{ color: #1a56db !important; }}
             </style>
             """,
             unsafe_allow_html=True,
@@ -331,9 +331,9 @@ def _render_step_item(
         label_style = "color:#71717A !important; font-size:0.8125rem;"
     elif is_current:
         icon_html = (
-            '<span style="color:#09090B !important; font-size:0.75rem;">▶</span>'
+            '<span style="color:#1a56db !important; font-size:0.75rem;">▶</span>'
         )
-        label_style = "color:#09090B !important; font-weight:700; font-size:0.8125rem;"
+        label_style = "color:#1a56db !important; font-weight:700; font-size:0.8125rem;"
     else:
         icon_html = (
             f'<span style="color:#A1A1AA !important; font-size:0.75rem;">'
@@ -349,7 +349,7 @@ def _render_step_item(
             <div style="
                 display:flex; align-items:center; gap:0.5rem;
                 padding:0.35rem 0.5rem; border-radius:0.375rem;
-                background:#F4F4F5; margin-bottom:0.125rem;
+                background:#e8f0fe; margin-bottom:0.125rem;
             ">
                 {icon_html}
                 <span style="{label_style}">{label}</span>
