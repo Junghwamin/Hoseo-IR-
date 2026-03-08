@@ -2,10 +2,16 @@
 그래프 생성 모듈 (matplotlib)
 
 각 함수는 BytesIO 이미지 객체를 반환한다 (Word 파일 삽입 및 Streamlit 미리보기용).
+
+Note:
+    Python 3.13+ 에서 matplotlib 3.8.x의 MarkerStyle deepcopy 재귀 버그가 존재한다.
+    이를 우회하기 위해 마커를 fmt 문자열("o-") 대신 keyword(marker="o")로 분리하고,
+    set_xticks 호출 전에 마커가 없는 상태로 tick을 설정한다.
 """
 
 from __future__ import annotations
 
+import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -19,6 +25,19 @@ from report_app.config import COMPARE_GROUP, UNIVERSITY
 # 한글 폰트 설정 (OS별 자동 감지)
 import platform as _platform
 import matplotlib.font_manager as _fm
+
+# Python 3.13+ 에서 matplotlib deepcopy 재귀 버그 방지를 위한 monkey-patch
+_PY_VERSION = sys.version_info[:2]
+if _PY_VERSION >= (3, 13):
+    import copy as _copy
+    _orig_deepcopy = _copy.deepcopy
+    def _safe_deepcopy(x, memo=None, _nil=[]):
+        """deepcopy 재귀 깊이 제한 (matplotlib path 버그 우회)"""
+        try:
+            return _orig_deepcopy(x, memo)
+        except RecursionError:
+            return x
+    _copy.deepcopy = _safe_deepcopy
 
 def _setup_korean_font():
     """OS별 한글 폰트를 자동 감지하여 설정한다."""
@@ -82,10 +101,10 @@ def create_trend_chart(
 
     fig, ax = plt.subplots(figsize=(9, 5))
 
-    ax.plot(years, hoseo_vals, "o-", color=COLOR_HOSEO, linewidth=2.5, markersize=7, label=UNIVERSITY, zorder=5)
-    ax.plot(years, nat_avg, "s--", color=COLOR_NATIONAL, linewidth=1.5, markersize=5, label="전국 평균", alpha=0.8)
-    ax.plot(years, reg_avg, "^--", color=COLOR_REGIONAL, linewidth=1.5, markersize=5, label="충청권 평균", alpha=0.8)
-    ax.plot(years, cmp_avg, "D--", color=COLOR_COMPARE, linewidth=1.5, markersize=5, label=f"{UNIVERSITY[:-2]}비교군 평균", alpha=0.8)
+    ax.plot(years, hoseo_vals, linestyle="-", marker="o", color=COLOR_HOSEO, linewidth=2.5, markersize=7, label=UNIVERSITY, zorder=5)
+    ax.plot(years, nat_avg, linestyle="--", marker="s", color=COLOR_NATIONAL, linewidth=1.5, markersize=5, label="전국 평균", alpha=0.8)
+    ax.plot(years, reg_avg, linestyle="--", marker="^", color=COLOR_REGIONAL, linewidth=1.5, markersize=5, label="충청권 평균", alpha=0.8)
+    ax.plot(years, cmp_avg, linestyle="--", marker="D", color=COLOR_COMPARE, linewidth=1.5, markersize=5, label=f"{UNIVERSITY[:-2]}비교군 평균", alpha=0.8)
 
     # 데이터 레이블 (호서대만)
     for x, y in zip(years, hoseo_vals):
@@ -208,7 +227,7 @@ def create_rank_trend_chart(rank_changes: dict[int, dict]) -> BytesIO:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     # 충청권 순위
-    ax1.plot(years, reg_ranks, "o-", color=COLOR_REGIONAL, linewidth=2.5, markersize=8)
+    ax1.plot(years, reg_ranks, linestyle="-", marker="o", color=COLOR_REGIONAL, linewidth=2.5, markersize=8)
     for x, y in zip(years, reg_ranks):
         ax1.annotate(f"{y}위", (x, y), textcoords="offset points", xytext=(0, 10),
                      ha="center", fontsize=10, color=COLOR_REGIONAL, fontweight="bold")
@@ -222,7 +241,7 @@ def create_rank_trend_chart(rank_changes: dict[int, dict]) -> BytesIO:
     ax1.set_facecolor("#f9f9f9")
 
     # 전국 순위
-    ax2.plot(years, nat_ranks, "o-", color=COLOR_NATIONAL, linewidth=2.5, markersize=8)
+    ax2.plot(years, nat_ranks, linestyle="-", marker="o", color=COLOR_NATIONAL, linewidth=2.5, markersize=8)
     for x, y in zip(years, nat_ranks):
         ax2.annotate(f"{y}위", (x, y), textcoords="offset points", xytext=(0, 10),
                      ha="center", fontsize=10, color=COLOR_NATIONAL, fontweight="bold")
