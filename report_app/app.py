@@ -75,12 +75,10 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 _TODAY = datetime.now().strftime("%Y년 %m월 %d일")
 
-st.markdown("""
-<link rel="preload" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap"></noscript>
-<style>
+st.markdown("""<style>
+/* ── 폰트 로딩 ────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap");
 /* ── 디자인 토큰 — Tailwind Zinc 모노크롬 ────────────────── */
 :root {
   --zinc-50:  #FAFAFA;
@@ -112,7 +110,7 @@ st.markdown("""
 /* ── 전체 배경 ────────────────────────────────────────────── */
 .stApp {
   background: var(--zinc-50) !important;
-  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif !important;
+  font-family: 'Noto Sans KR', -apple-system, 'Malgun Gothic', 'NanumGothic', sans-serif !important;
 }
 
 /* ── 메인 컨테이너 패딩 ───────────────────────────────────── */
