@@ -194,3 +194,27 @@ def get_narrative(client: OpenAI) -> dict[str, str]: ...
 | 2026-03-02 | 수정: `chart_generator.py` |
 | 2026-03-02 | 신규 생성: `build_windows.py` |
 | 2026-03-02 | 신규 생성: `create_icon.py` |
+| 2026-03-03 | 수정: `config.py` |
+| 2026-03-03 | 수정: `app.py` |
+| 2026-03-03 | 수정: `전임교원_연구실적_전처리.py` |
+| 2026-03-04 | 수정: `build_windows.py` |
+| 2026-03-07 | 수정: `config.py` |
+| 2026-03-07 | 수정: `data_loader.py` |
+| 2026-03-07 | 수정: `app.py` |
+| 2026-03-07 | 수정: `전임교원_연구실적_전처리.py` |
+| 2026-03-07 | 수정: `chart_generator.py` |
+| 2026-03-07 | 신규 생성: `test_e2e.py` |
+| 2026-03-08 | 신규 생성: `e2e_test_full.py` |
+| 2026-03-08 | 수정: `chart_generator.py` |
+| 2026-03-08 | 수정: `app.py` |
+| 2026-03-08 | 신규 생성: `__init__.py` |
+| 2026-03-08 | 신규 생성: `toolbar.py` |
+| 2026-03-08 | 신규 생성: `metric_card.py` |
+| 2026-03-08 | 신규 생성: `styles.py` |
+| 2026-03-08 | 신규 생성: `chart_card.py` |
+| 2026-03-08 | 신규 생성: `sidebar.py` |
+| 2026-03-08 | 신규 생성: `gpt_section.py` |
+| 2026-03-08 | 신규 생성: `home.py` |
+| 2026-03-08 | 신규 생성: `settings.py` |
+| 2026-03-08 | 신규 생성: `research.py` |
+| 2026-03-08 | 신규 생성: `app.py` |
