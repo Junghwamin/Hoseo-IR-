@@ -270,17 +270,17 @@ def _render_step1():
 def _render_data_filter():
     """데이터 필터링 UI를 렌더링한다.
 
-    로드된 전체 데이터에서 분석에 사용할 연도 범위와
-    비교 대학을 선택할 수 있다. 필터 적용 시 session_state의
-    DataFrame을 필터링된 버전으로 교체하고 통계를 재계산한다.
+    로드된 전체 데이터를 인터랙티브 테이블로 보여주고,
+    체크박스로 분석에 포함할 대학을 직접 선택할 수 있다.
 
     필터 항목:
         - 분석 연도: 전체 연도 중 원하는 연도만 선택 (multiselect)
         - 기준 연도: 선택된 연도 중 보고서 기준 연도 (selectbox)
+        - 충청권 대학 선택: 체크박스로 분석 포함/제외 (data_editor)
         - 비교 대학: 비교군 대학 커스텀 선택 (multiselect)
 
     Note:
-        - 호서대학교는 비교군에서 제외 불가 (자동 포함)
+        - 호서대학교는 항상 선택 상태 유지 (체크 해제 불가)
         - 필터가 변경되면 통계를 재계산한다
     """
     nat_df = st.session_state.national_df
@@ -305,16 +305,12 @@ def _render_data_filter():
         '</div>',
         unsafe_allow_html=True,
     )
-    st.caption("분석에 사용할 연도와 비교 대학을 선택하세요. 전체 데이터 중 원하는 부분만 분석할 수 있습니다.")
+    st.caption("로드된 데이터에서 분석에 사용할 연도, 대학을 직접 선택하세요.")
 
-    # --- 연도 필터 ---
+    # ── 1. 연도 필터 ──────────────────────────────────────────────────────
     all_years = sorted(nat_df["연도"].unique().tolist())
-    # 이전에 선택한 연도가 있으면 유지, 없으면 전체 선택
     prev_years = st.session_state.get("_filter_years", all_years)
-    # 유효한 연도만 남기기
-    prev_years = [y for y in prev_years if y in all_years]
-    if not prev_years:
-        prev_years = all_years
+    prev_years = [y for y in prev_years if y in all_years] or all_years
 
     col_year, col_base = st.columns([3, 1])
     with col_year:
@@ -323,7 +319,7 @@ def _render_data_filter():
             options=all_years,
             default=prev_years,
             key="_filter_years_widget",
-            help="분석에 포함할 연도를 선택하세요. 최소 1개 이상 필요합니다.",
+            help="분석에 포함할 연도를 선택하세요.",
         )
     with col_base:
         if selected_years:
@@ -335,97 +331,161 @@ def _render_data_filter():
                 options=year_options,
                 index=default_idx,
                 key="_filter_base_year",
-                help="보고서의 기준이 되는 연도",
+                help="보고서 기준 연도",
             )
         else:
             st.warning("연도를 1개 이상 선택하세요.")
             base_year = None
 
-    # --- 비교 대학 필터 ---
-    # 충청권 대학 목록 (전체)
-    all_regional_univs = sorted(reg_df["학교명"].unique().tolist())
-    # 기본 비교군에서 호서대 제외한 목록
-    default_compare = [u for u in COMPARE_GROUP if u != UNIVERSITY]
-    available_compare = [u for u in all_regional_univs if u != UNIVERSITY]
+    if not selected_years or not base_year:
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
 
-    prev_compare = st.session_state.get("_filter_compare", default_compare)
-    prev_compare = [u for u in prev_compare if u in available_compare]
-    if not prev_compare:
-        prev_compare = default_compare
+    # ── 2. 충청권 대학 직접 선택 (체크박스 테이블) ─────────────────────────
+    st.markdown("---")
+    st.markdown("**충청권 대학 선택** — 분석에 포함할 대학을 체크하세요")
+    st.caption(f"✅ {UNIVERSITY}는 분석 대상이므로 항상 포함됩니다.")
 
-    selected_compare = st.multiselect(
-        f"비교 대학 선택 (기본: {COMPARE_GROUP_NAME})",
-        options=available_compare,
-        default=prev_compare,
-        key="_filter_compare_widget",
-        help=f"{UNIVERSITY}는 자동 포함됩니다. 비교할 대학을 추가/제거하세요.",
+    # 기준 연도의 충청권 데이터로 대학 목록 생성
+    reg_base = reg_df[reg_df["연도"] == base_year].sort_values("충청권순위")
+    if reg_base.empty:
+        # 기준 연도 데이터가 없으면 전체 연도에서 대학 목록 추출
+        reg_base = reg_df[reg_df["연도"].isin(selected_years)].drop_duplicates("학교명").sort_values("학교명")
+
+    # 이전 선택 상태 복원
+    prev_selected_univs = st.session_state.get("_filter_selected_univs", None)
+
+    # 체크박스용 DataFrame 구성
+    univ_rows = []
+    for _, row in reg_base.iterrows():
+        name = row["학교명"]
+        is_hoseo = (name == UNIVERSITY)
+        # 이전 선택이 있으면 복원, 없으면 기본 비교군 + 호서대만 선택
+        if prev_selected_univs is not None:
+            checked = name in prev_selected_univs
+        else:
+            checked = name in COMPARE_GROUP
+        univ_rows.append({
+            "선택": True if is_hoseo else checked,
+            "학교명": name,
+            "전임교원수": int(row["전임교원수"]) if pd.notna(row.get("전임교원수")) else 0,
+            "SCI/SCOPUS논문수": round(float(row["SCI/SCOPUS논문수"]), 1) if pd.notna(row.get("SCI/SCOPUS논문수")) else 0,
+            "1인당논문수": round(float(row["1인당논문수"]), 4) if pd.notna(row.get("1인당논문수")) else 0,
+            "충청권순위": int(row["충청권순위"]) if pd.notna(row.get("충청권순위")) else "-",
+        })
+
+    check_df = pd.DataFrame(univ_rows)
+
+    # st.data_editor로 인터랙티브 테이블 표시
+    edited_df = st.data_editor(
+        check_df,
+        column_config={
+            "선택": st.column_config.CheckboxColumn(
+                "선택",
+                help="분석에 포함할 대학을 체크하세요",
+                default=False,
+                width="small",
+            ),
+            "학교명": st.column_config.TextColumn("학교명", disabled=True, width="medium"),
+            "전임교원수": st.column_config.NumberColumn("전임교원수", disabled=True, format="%d명"),
+            "SCI/SCOPUS논문수": st.column_config.NumberColumn("논문수", disabled=True, format="%.1f"),
+            "1인당논문수": st.column_config.NumberColumn("1인당논문수", disabled=True, format="%.4f"),
+            "충청권순위": st.column_config.TextColumn("충청권순위", disabled=True, width="small"),
+        },
+        disabled=["학교명", "전임교원수", "SCI/SCOPUS논문수", "1인당논문수", "충청권순위"],
+        hide_index=True,
+        use_container_width=True,
+        key="_univ_selector",
     )
 
-    # --- 필터 적용 미리보기 ---
-    if selected_years and base_year:
-        filtered_nat = nat_df[nat_df["연도"].isin(selected_years)]
-        filtered_reg = reg_df[reg_df["연도"].isin(selected_years)]
+    # 호서대 강제 포함
+    selected_univs = edited_df[edited_df["선택"] == True]["학교명"].tolist()  # noqa: E712
+    if UNIVERSITY not in selected_univs:
+        selected_univs.append(UNIVERSITY)
 
-        compare_group_final = list(set([UNIVERSITY] + selected_compare))
+    selected_count = len(selected_univs)
+    total_count = len(check_df)
+    st.markdown(f"**{selected_count}개교 선택됨** / 전체 {total_count}개교")
 
-        col_info1, col_info2, col_info3 = st.columns(3)
-        col_info1.metric("분석 연도", f"{len(selected_years)}개 / {len(all_years)}개")
-        col_info2.metric("기준 연도", f"{base_year}년")
-        col_info3.metric("비교 대학", f"{len(compare_group_final)}개교")
+    # ── 3. 비교군 선택 (선택된 대학 중에서) ────────────────────────────────
+    st.markdown("---")
+    st.markdown("**비교군 설정** — 선택된 대학 중 직접 비교할 대학을 지정하세요")
+    st.caption("비교군은 평균 계산, 비교 차트에 사용됩니다.")
 
-        with st.expander("📋 필터링된 데이터 미리보기", expanded=False):
-            tab_nat, tab_reg = st.tabs(["전국 데이터", "충청권 데이터"])
-            with tab_nat:
-                st.dataframe(
-                    filtered_nat[filtered_nat["학교명"].isin(compare_group_final)].sort_values(["연도", "전국순위"]),
-                    use_container_width=True,
-                    hide_index=True,
-                )
-            with tab_reg:
-                st.dataframe(
-                    filtered_reg.sort_values(["연도", "충청권순위"]),
-                    use_container_width=True,
-                    hide_index=True,
-                )
+    compare_candidates = [u for u in selected_univs if u != UNIVERSITY]
+    default_compare = [u for u in COMPARE_GROUP if u != UNIVERSITY and u in compare_candidates]
+    prev_compare = st.session_state.get("_filter_compare", default_compare)
+    prev_compare = [u for u in prev_compare if u in compare_candidates] or default_compare
 
-        # --- 필터 적용 버튼 ---
-        changed = (
-            sorted(selected_years) != sorted(st.session_state.get("_filter_years", all_years))
-            or base_year != st.session_state.get("selected_year")
-            or sorted(selected_compare) != sorted(st.session_state.get("_filter_compare", default_compare))
-        )
+    selected_compare = st.multiselect(
+        f"비교군 대학 (기본: {COMPARE_GROUP_NAME})",
+        options=compare_candidates,
+        default=prev_compare,
+        key="_filter_compare_widget",
+        help=f"{UNIVERSITY}는 자동 포함. 직접 비교할 대학을 선택하세요.",
+    )
+    compare_group_final = list(set([UNIVERSITY] + selected_compare))
 
-        if changed:
-            st.info("⚡ 필터가 변경되었습니다. [적용] 버튼을 눌러 통계를 갱신하세요.")
+    # ── 4. 필터 요약 + 미리보기 ────────────────────────────────────────────
+    st.markdown("---")
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    col_s1.metric("분석 연도", f"{len(selected_years)}개")
+    col_s2.metric("기준 연도", f"{base_year}년")
+    col_s3.metric("충청권 대학", f"{selected_count}개교")
+    col_s4.metric("비교군", f"{len(compare_group_final)}개교")
 
-        if st.button(
-            "✅ 필터 적용" if changed else "✅ 필터 적용됨",
-            type="primary" if changed else "secondary",
-            use_container_width=True,
-            key="apply_filter",
-        ):
-            # 필터 상태 저장
-            st.session_state["_filter_years"] = selected_years
-            st.session_state["_filter_compare"] = selected_compare
-            st.session_state["_filter_compare_group"] = compare_group_final
+    # 연도 + 대학 필터 적용된 DataFrame
+    filtered_nat = nat_df[nat_df["연도"].isin(selected_years)]
+    filtered_reg = reg_df[
+        (reg_df["연도"].isin(selected_years)) & (reg_df["학교명"].isin(selected_univs))
+    ]
 
-            # 필터링된 DataFrame 적용
-            st.session_state.national_df = filtered_nat
-            st.session_state.regional_df = filtered_reg
-            st.session_state.selected_year = base_year
+    with st.expander("📋 필터링된 데이터 미리보기", expanded=False):
+        tab_reg, tab_nat = st.tabs(["충청권 데이터 (필터 적용)", "전국 데이터"])
+        with tab_reg:
+            st.dataframe(
+                filtered_reg.sort_values(["연도", "충청권순위"]),
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.caption(f"총 {len(filtered_reg)}행 — {selected_count}개 대학 × {len(selected_years)}개 연도")
+        with tab_nat:
+            # 전국 데이터는 전체 유지 (전국 평균/순위 계산 필요)
+            st.dataframe(
+                filtered_nat.sort_values(["연도", "전국순위"]).head(50),
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.caption(f"총 {len(filtered_nat)}행 (전국 평균 계산을 위해 전체 유지, 상위 50행 표시)")
 
-            # 비교군 동적 변경을 위해 config의 COMPARE_GROUP을 우회
-            st.session_state["_custom_compare_group"] = compare_group_final
+    # ── 5. 필터 적용 버튼 ──────────────────────────────────────────────────
+    if st.button(
+        "✅ 이 데이터로 분석 시작",
+        type="primary",
+        use_container_width=True,
+        key="apply_filter",
+    ):
+        # 필터 상태 저장
+        st.session_state["_filter_years"] = selected_years
+        st.session_state["_filter_compare"] = selected_compare
+        st.session_state["_filter_selected_univs"] = selected_univs
+        st.session_state["_filter_compare_group"] = compare_group_final
 
-            # 통계 재계산
-            _calc_stats()
-            # 차트 캐시 초기화 (데이터 변경됨)
-            st.session_state.charts = {}
-            st.success("✅ 필터 적용 완료! 통계가 갱신되었습니다.")
-            st.rerun()
-    else:
-        if not selected_years:
-            st.warning("⚠️ 분석 연도를 1개 이상 선택해주세요.")
+        # 필터링된 DataFrame 적용
+        # 전국 데이터: 연도만 필터 (전국 평균/순위 계산에 전체 대학 필요)
+        st.session_state.national_df = filtered_nat
+        # 충청권 데이터: 연도 + 선택된 대학만 필터
+        st.session_state.regional_df = filtered_reg
+        st.session_state.selected_year = base_year
+
+        # 비교군 동적 변경
+        st.session_state["_custom_compare_group"] = compare_group_final
+
+        # 통계 재계산 + 차트 캐시 초기화
+        _calc_stats()
+        st.session_state.charts = {}
+        st.success("✅ 필터 적용 완료!")
+        st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
 
