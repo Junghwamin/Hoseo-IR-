@@ -62,11 +62,11 @@ def _setup_korean_font():
 _setup_korean_font()
 
 # 색상 팔레트
-COLOR_HOSEO = "#1f77b4"      # 호서대 강조 파란색
-COLOR_OTHERS = "#aec7e8"     # 기타 연한 파란색
-COLOR_NATIONAL = "#ff7f0e"   # 전국 주황
-COLOR_REGIONAL = "#2ca02c"   # 충청권 초록
-COLOR_COMPARE = "#9467bd"    # 비교군 보라
+COLOR_HOSEO = "#0A0A0A"      # 호서대 강조 (거의 블랙)
+COLOR_OTHERS = "#BDBDBD"     # 기타 연한 그레이
+COLOR_NATIONAL = "#555555"   # 전국 다크 그레이
+COLOR_REGIONAL = "#888888"   # 충청권 미디엄 그레이
+COLOR_COMPARE = "#AAAAAA"    # 비교군 라이트 그레이
 
 
 def _save_fig(fig: plt.Figure) -> BytesIO:
@@ -101,15 +101,23 @@ def create_trend_chart(
 
     fig, ax = plt.subplots(figsize=(9, 5))
 
-    ax.plot(years, hoseo_vals, linestyle="-", marker="o", color=COLOR_HOSEO, linewidth=2.5, markersize=7, label=UNIVERSITY, zorder=5)
-    ax.plot(years, nat_avg, linestyle="--", marker="s", color=COLOR_NATIONAL, linewidth=1.5, markersize=5, label="전국 평균", alpha=0.8)
-    ax.plot(years, reg_avg, linestyle="--", marker="^", color=COLOR_REGIONAL, linewidth=1.5, markersize=5, label="충청권 평균", alpha=0.8)
-    ax.plot(years, cmp_avg, linestyle="--", marker="D", color=COLOR_COMPARE, linewidth=1.5, markersize=5, label=f"{UNIVERSITY[:-2]}비교군 평균", alpha=0.8)
+    ax.plot(years, hoseo_vals, linestyle="-", marker="o", color="#0A0A0A",
+            linewidth=2.5, markersize=7, markerfacecolor="white", markeredgewidth=2,
+            label=UNIVERSITY, zorder=5)
+    ax.plot(years, nat_avg, linestyle="--", marker="s", color="#555555",
+            linewidth=1.8, markersize=5, markerfacecolor="white", markeredgewidth=1.5,
+            label="전국 평균", alpha=0.9)
+    ax.plot(years, reg_avg, linestyle=":", marker="^", color="#888888",
+            linewidth=1.8, markersize=5, markerfacecolor="white", markeredgewidth=1.5,
+            label="충청권 평균", alpha=0.9)
+    ax.plot(years, cmp_avg, linestyle="-.", marker="D", color="#AAAAAA",
+            linewidth=1.5, markersize=5, markerfacecolor="white", markeredgewidth=1.5,
+            label=f"{UNIVERSITY[:-2]}비교군 평균", alpha=0.9)
 
     # 데이터 레이블 (호서대만)
     for x, y in zip(years, hoseo_vals):
         ax.annotate(f"{y:.4f}", (x, y), textcoords="offset points", xytext=(0, 10),
-                    ha="center", fontsize=9, color=COLOR_HOSEO, fontweight="bold")
+                    ha="center", fontsize=9, color="#0A0A0A", fontweight="bold")
 
     ax.set_title("전임교원 1인당 SCI/SCOPUS 논문수 연도별 추이", fontsize=13, fontweight="bold", pad=12)
     ax.set_xlabel("연도", fontsize=11)
@@ -117,8 +125,12 @@ def create_trend_chart(
     ax.set_xticks(years)
     ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.4f"))
     ax.legend(loc="upper left", fontsize=9)
-    ax.grid(axis="y", linestyle="--", alpha=0.4)
-    ax.set_facecolor("#f9f9f9")
+    ax.grid(axis="y", linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+    ax.set_facecolor("white")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color("#D4D4D8")
+    ax.tick_params(colors="#525252")
+    fig.patch.set_facecolor("white")
     fig.tight_layout()
 
     return _save_fig(fig)
@@ -146,7 +158,13 @@ def create_comparison_bar(
     colors = [COLOR_HOSEO if n == UNIVERSITY else COLOR_OTHERS for n in names]
 
     fig, ax = plt.subplots(figsize=(12, 6))
-    bars = ax.bar(names, values, color=colors, edgecolor="white", linewidth=0.5)
+    bars = ax.bar(names, values, color=colors, edgecolor="#3F3F46", linewidth=0.8)
+
+    # 호서대 바에만 hatch 패턴 추가
+    for bar, name in zip(bars, names):
+        if name == UNIVERSITY:
+            bar.set_hatch("///")
+            bar.set_edgecolor("#0A0A0A")
 
     for bar, val in zip(bars, values):
         ax.text(
@@ -159,8 +177,12 @@ def create_comparison_bar(
     ax.set_title(f"{year}년 충청권 대학 전임교원 1인당 SCI/SCOPUS 논문수", fontsize=13, fontweight="bold", pad=12)
     ax.set_ylabel("1인당 논문수 (편)", fontsize=11)
     ax.tick_params(axis="x", rotation=45)
-    ax.grid(axis="y", linestyle="--", alpha=0.4)
-    ax.set_facecolor("#f9f9f9")
+    ax.grid(axis="y", linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+    ax.set_facecolor("white")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color("#D4D4D8")
+    ax.tick_params(colors="#525252")
+    fig.patch.set_facecolor("white")
     fig.tight_layout()
 
     return _save_fig(fig)
@@ -188,7 +210,7 @@ def create_avg_comparison(
     colors = [COLOR_HOSEO, COLOR_NATIONAL, COLOR_REGIONAL, COLOR_COMPARE]
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    bars = ax.barh(labels, values, color=colors, height=0.5, edgecolor="white")
+    bars = ax.barh(labels, values, color=colors, height=0.5, edgecolor="#3F3F46", linewidth=0.8)
 
     for bar, val in zip(bars, values):
         ax.text(
@@ -201,8 +223,12 @@ def create_avg_comparison(
     ax.set_title(f"{year}년 1인당 논문수 평균 비교", fontsize=13, fontweight="bold", pad=12)
     ax.set_xlabel("1인당 논문수 (편)", fontsize=11)
     ax.set_xlim(0, max(values) * 1.3)
-    ax.grid(axis="x", linestyle="--", alpha=0.4)
-    ax.set_facecolor("#f9f9f9")
+    ax.grid(axis="x", linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+    ax.set_facecolor("white")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color("#D4D4D8")
+    ax.tick_params(colors="#525252")
+    fig.patch.set_facecolor("white")
     fig.tight_layout()
 
     return _save_fig(fig)
@@ -227,34 +253,43 @@ def create_rank_trend_chart(rank_changes: dict[int, dict]) -> BytesIO:
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     # 충청권 순위
-    ax1.plot(years, reg_ranks, linestyle="-", marker="o", color=COLOR_REGIONAL, linewidth=2.5, markersize=8)
+    ax1.plot(years, reg_ranks, linestyle="-", marker="o", color="#3F3F46",
+             linewidth=2.5, markersize=8, markerfacecolor="white", markeredgewidth=2)
     for x, y in zip(years, reg_ranks):
         ax1.annotate(f"{y}위", (x, y), textcoords="offset points", xytext=(0, 10),
-                     ha="center", fontsize=10, color=COLOR_REGIONAL, fontweight="bold")
+                     ha="center", fontsize=10, color="#3F3F46", fontweight="bold")
     ax1.set_title(f"{UNIVERSITY} 충청권 순위 변화", fontsize=12, fontweight="bold")
     ax1.set_xlabel("연도")
     ax1.set_ylabel("충청권 순위")
     ax1.invert_yaxis()
     ax1.set_xticks(years)
     ax1.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    ax1.grid(linestyle="--", alpha=0.4)
-    ax1.set_facecolor("#f9f9f9")
+    ax1.grid(linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+    ax1.set_facecolor("white")
+    ax1.spines[["top", "right"]].set_visible(False)
+    ax1.spines[["left", "bottom"]].set_color("#D4D4D8")
+    ax1.tick_params(colors="#525252")
 
     # 전국 순위
-    ax2.plot(years, nat_ranks, linestyle="-", marker="o", color=COLOR_NATIONAL, linewidth=2.5, markersize=8)
+    ax2.plot(years, nat_ranks, linestyle="--", marker="s", color="#71717A",
+             linewidth=2.5, markersize=8, markerfacecolor="white", markeredgewidth=1.5)
     for x, y in zip(years, nat_ranks):
         ax2.annotate(f"{y}위", (x, y), textcoords="offset points", xytext=(0, 10),
-                     ha="center", fontsize=10, color=COLOR_NATIONAL, fontweight="bold")
+                     ha="center", fontsize=10, color="#71717A", fontweight="bold")
     ax2.set_title(f"{UNIVERSITY} 전국 순위 변화", fontsize=12, fontweight="bold")
     ax2.set_xlabel("연도")
     ax2.set_ylabel("전국 순위")
     ax2.invert_yaxis()
     ax2.set_xticks(years)
     ax2.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    ax2.grid(linestyle="--", alpha=0.4)
-    ax2.set_facecolor("#f9f9f9")
+    ax2.grid(linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+    ax2.set_facecolor("white")
+    ax2.spines[["top", "right"]].set_visible(False)
+    ax2.spines[["left", "bottom"]].set_color("#D4D4D8")
+    ax2.tick_params(colors="#525252")
 
     fig.suptitle(f"{UNIVERSITY} 순위 추이", fontsize=13, fontweight="bold")
+    fig.patch.set_facecolor("white")
     fig.tight_layout()
 
     return _save_fig(fig)
@@ -280,7 +315,13 @@ def create_compare_group_bar(
     colors = [COLOR_HOSEO if n == UNIVERSITY else COLOR_OTHERS for n in names]
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    bars = ax.bar(names, values, color=colors, edgecolor="white", linewidth=0.5, width=0.5)
+    bars = ax.bar(names, values, color=colors, edgecolor="#3F3F46", linewidth=0.8, width=0.5)
+
+    # 호서대 바에만 hatch 패턴 추가
+    for bar, name in zip(bars, names):
+        if name == UNIVERSITY:
+            bar.set_hatch("///")
+            bar.set_edgecolor("#0A0A0A")
 
     for bar, val in zip(bars, values):
         ax.text(
@@ -293,8 +334,12 @@ def create_compare_group_bar(
     ax.set_title(f"{year}년 {UNIVERSITY[:-2]}비교군 1인당 SCI/SCOPUS 논문수", fontsize=13, fontweight="bold", pad=12)
     ax.set_ylabel("1인당 논문수 (편)", fontsize=11)
     ax.tick_params(axis="x", rotation=20)
-    ax.grid(axis="y", linestyle="--", alpha=0.4)
-    ax.set_facecolor("#f9f9f9")
+    ax.grid(axis="y", linestyle="--", color="#E5E5E5", linewidth=0.8, alpha=1.0)
+    ax.set_facecolor("white")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color("#D4D4D8")
+    ax.tick_params(colors="#525252")
+    fig.patch.set_facecolor("white")
     fig.tight_layout()
 
     return _save_fig(fig)

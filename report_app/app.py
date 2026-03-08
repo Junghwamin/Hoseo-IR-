@@ -1,5 +1,8 @@
 """
-호서대학교 IR센터 - 연구실적 분석 포털 v3.0
+호서대학교 IR센터 - 연구실적 분석 포털 v4.0
+
+디자인 시스템: Zinc 모노크롬 + Pretendard/Noto Serif KR
+CSS 아키텍처: Swiss Minimalism (Linear/Notion 스타일)
 
 5단계 Step-by-Step 워크플로우:
   1단계: 데이터 설정   (파일 업로드 or 기존 파일 사용)
@@ -73,43 +76,46 @@ st.set_page_config(
 _TODAY = datetime.now().strftime("%Y년 %m월 %d일")
 
 st.markdown("""
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap">
 <style>
-/* ── 디자인 토큰 ─────────────────────────────────────────── */
+/* ── 디자인 토큰 — Tailwind Zinc 모노크롬 ────────────────── */
 :root {
-  --blue-900: #0F2D5C;
-  --blue-800: #1B4F8A;
-  --blue-700: #1D5EA8;
-  --blue-500: #2563EB;
-  --blue-100: #DBEAFE;
-  --blue-50:  #EFF6FF;
-  --amber-500: #F59E0B;
-  --amber-100: #FEF3C7;
-  --green-500: #10B981;
-  --green-100: #D1FAE5;
-  --red-500:   #EF4444;
-  --gray-900:  #111827;
-  --gray-700:  #374151;
-  --gray-500:  #6B7280;
-  --gray-300:  #D1D5DB;
-  --gray-100:  #F3F4F6;
-  --gray-50:   #F9FAFB;
-  --white:     #FFFFFF;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.05);
-  --radius:    10px;
-  --radius-lg: 16px;
+  --zinc-50:  #FAFAFA;
+  --zinc-100: #F4F4F5;
+  --zinc-200: #E4E4E7;
+  --zinc-300: #D4D4D8;
+  --zinc-400: #A1A1AA;
+  --zinc-500: #71717A;
+  --zinc-600: #52525B;
+  --zinc-700: #3F3F46;
+  --zinc-800: #27272A;
+  --zinc-900: #18181B;
+  --zinc-950: #09090B;
+
+  --green-600: #16A34A;
+  --green-50:  #F0FDF4;
+  --red-600:   #DC2626;
+  --red-50:    #FEF2F2;
+  --amber-600: #D97706;
+  --amber-50:  #FFFBEB;
+
+  --radius:    0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
 }
 
 /* ── 전체 배경 ────────────────────────────────────────────── */
 .stApp {
-  background: #F0F4F9;
-  font-family: 'Malgun Gothic', '맑은 고딕', 'NanumGothic', -apple-system, sans-serif !important;
+  background: var(--zinc-50) !important;
+  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif !important;
 }
 
 /* ── 메인 컨테이너 패딩 ───────────────────────────────────── */
 .main .block-container {
-  padding-top: 1.2rem !important;
+  padding-top: 1.5rem !important;
   padding-bottom: 2.5rem !important;
   max-width: 1280px !important;
 }
@@ -118,208 +124,211 @@ st.markdown("""
 [data-testid="stHeader"] { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
 
-/* ── 사이드바 ──────────────────────────────────────────────── */
+/* ── 사이드바 — 화이트 배경 (Linear/Notion 스타일) ─────────── */
 [data-testid="stSidebar"] {
-  background: var(--blue-900) !important;
-  border-right: none !important;
+  background: white !important;
+  border-right: 1px solid var(--zinc-200) !important;
 }
 [data-testid="stSidebar"] * {
-  color: #E0E7EF !important;
+  color: var(--zinc-700) !important;
 }
 [data-testid="stSidebar"] .stTextInput input {
-  background: rgba(255,255,255,0.12) !important;
-  border: 1px solid rgba(255,255,255,0.25) !important;
-  color: white !important;
-  border-radius: 8px !important;
+  background: var(--zinc-50) !important;
+  border: 1px solid var(--zinc-200) !important;
+  color: var(--zinc-900) !important;
+  border-radius: 0.375rem !important;
 }
 [data-testid="stSidebar"] .stTextInput input::placeholder {
-  color: rgba(255,255,255,0.45) !important;
+  color: var(--zinc-400) !important;
 }
 [data-testid="stSidebar"] hr {
-  border-color: rgba(255,255,255,0.15) !important;
+  border-color: var(--zinc-200) !important;
 }
 [data-testid="stSidebar"] .stButton > button {
-  background: rgba(255,255,255,0.12) !important;
-  border: 1px solid rgba(255,255,255,0.25) !important;
-  color: white !important;
-  border-radius: 8px !important;
+  background: var(--zinc-50) !important;
+  border: 1px solid var(--zinc-200) !important;
+  color: var(--zinc-700) !important;
+  border-radius: 0.375rem !important;
   font-weight: 500 !important;
-  transition: all .2s !important;
+  transition: all .15s !important;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
-  background: rgba(255,255,255,0.22) !important;
-  border-color: rgba(255,255,255,0.45) !important;
+  background: var(--zinc-100) !important;
+  border-color: var(--zinc-300) !important;
 }
-/* 사이드바 성공/경고 메시지 */
 [data-testid="stSidebar"] .stSuccess {
-  background: rgba(16,185,129,0.2) !important;
-  color: #6EE7B7 !important;
-  border: 1px solid rgba(16,185,129,0.35) !important;
+  background: var(--green-50) !important;
+  color: var(--green-600) !important;
+  border: 1px solid #BBF7D0 !important;
 }
 [data-testid="stSidebar"] .stWarning {
-  background: rgba(245,158,11,0.2) !important;
-  color: #FCD34D !important;
-  border: 1px solid rgba(245,158,11,0.35) !important;
+  background: var(--amber-50) !important;
+  color: var(--amber-600) !important;
+  border: 1px solid #FDE68A !important;
 }
 
-/* ── 버튼 스타일 ───────────────────────────────────────────── */
+/* ── 버튼 ─────────────────────────────────────────────────── */
 .stButton > button {
-  border-radius: 8px !important;
+  border-radius: 0.375rem !important;
   font-weight: 600 !important;
-  font-size: 0.88rem !important;
-  padding: 0.45rem 1.2rem !important;
-  transition: all .2s ease !important;
-  border: 1px solid var(--gray-300) !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 1.25rem !important;
+  transition: all .15s ease !important;
+  border: 1px solid var(--zinc-200) !important;
+  letter-spacing: -0.01em !important;
 }
 .stButton > button[kind="primary"] {
-  background: var(--blue-800) !important;
-  border-color: var(--blue-800) !important;
+  background: var(--zinc-950) !important;
+  border-color: var(--zinc-950) !important;
   color: white !important;
-  box-shadow: var(--shadow-sm) !important;
 }
 .stButton > button[kind="primary"]:hover {
-  background: var(--blue-700) !important;
-  box-shadow: var(--shadow-md) !important;
+  background: var(--zinc-800) !important;
   transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 .stButton > button:not([kind="primary"]):hover {
-  border-color: var(--blue-800) !important;
-  color: var(--blue-800) !important;
-  background: var(--blue-50) !important;
+  border-color: var(--zinc-400) !important;
+  background: var(--zinc-50) !important;
 }
 
-/* ── 탭 스타일 ─────────────────────────────────────────────── */
+/* ── 탭 ───────────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
-  background: white !important;
-  border-radius: var(--radius) var(--radius) 0 0 !important;
-  padding: 0 1rem !important;
-  border-bottom: 2px solid var(--gray-100) !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--zinc-200) !important;
   gap: 0 !important;
+  padding: 0 !important;
 }
 .stTabs [data-baseweb="tab"] {
   border-radius: 0 !important;
-  padding: 0.7rem 1.1rem !important;
-  font-size: 0.88rem !important;
+  padding: 0.625rem 1rem !important;
+  font-size: 0.875rem !important;
   font-weight: 500 !important;
-  color: var(--gray-500) !important;
+  color: var(--zinc-500) !important;
   border-bottom: 2px solid transparent !important;
-  margin-bottom: -2px !important;
+  margin-bottom: -1px !important;
+  transition: all .15s !important;
 }
 .stTabs [aria-selected="true"] {
-  color: var(--blue-800) !important;
-  border-bottom: 2px solid var(--blue-800) !important;
+  color: var(--zinc-950) !important;
+  border-bottom: 2px solid var(--zinc-950) !important;
   background: transparent !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
 }
 .stTabs [data-baseweb="tab-panel"] {
   background: white !important;
+  border: 1px solid var(--zinc-200) !important;
+  border-top: none !important;
   border-radius: 0 0 var(--radius) var(--radius) !important;
   padding: 1.5rem !important;
-  box-shadow: var(--shadow-sm) !important;
 }
 
 /* ── Expander ─────────────────────────────────────────────── */
 .stExpander {
-  border: 1px solid var(--gray-200) !important;
+  border: 1px solid var(--zinc-200) !important;
   border-radius: var(--radius) !important;
   background: white !important;
-  box-shadow: var(--shadow-sm) !important;
-  margin-bottom: 0.8rem !important;
+  margin-bottom: 0.75rem !important;
 }
 .stExpander summary {
   font-weight: 600 !important;
-  color: var(--gray-700) !important;
+  color: var(--zinc-700) !important;
 }
 
-/* ── 텍스트 에어리어 ───────────────────────────────────────── */
+/* ── 텍스트 에어리어 — GPT 서술 (세리프 폰트) ────────────── */
 .stTextArea textarea {
-  border: 1.5px solid var(--gray-300) !important;
-  border-radius: 8px !important;
-  font-family: 'Malgun Gothic', '맑은 고딕', 'NanumGothic', sans-serif !important;
-  font-size: 0.9rem !important;
-  line-height: 1.7 !important;
-  transition: border-color .2s !important;
+  border: 1px solid var(--zinc-200) !important;
+  border-radius: 0.375rem !important;
+  font-family: 'Noto Serif KR', Georgia, serif !important;
+  font-size: 0.9375rem !important;
+  line-height: 1.875 !important;
+  color: var(--zinc-700) !important;
+  transition: border-color .15s !important;
 }
 .stTextArea textarea:focus {
-  border-color: var(--blue-500) !important;
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.12) !important;
+  border-color: var(--zinc-950) !important;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06) !important;
 }
 
 /* ── 메트릭 카드 ───────────────────────────────────────────── */
 [data-testid="stMetric"] {
   background: white !important;
   border-radius: var(--radius) !important;
-  padding: 1rem 1.2rem !important;
-  box-shadow: var(--shadow-sm) !important;
-  border: 1px solid var(--gray-100) !important;
-  transition: box-shadow .2s !important;
+  padding: 1.25rem !important;
+  border: 1px solid var(--zinc-200) !important;
+  border-top: 3px solid var(--zinc-950) !important;
+  transition: all .15s !important;
 }
 [data-testid="stMetric"]:hover {
   box-shadow: var(--shadow-md) !important;
+  transform: translateY(-3px) !important;
 }
 [data-testid="stMetricLabel"] {
-  font-size: 0.78rem !important;
+  font-size: 0.8125rem !important;
   font-weight: 600 !important;
-  color: var(--gray-500) !important;
-  letter-spacing: .03em !important;
+  color: var(--zinc-500) !important;
+  letter-spacing: 0.06em !important;
   text-transform: uppercase !important;
 }
 [data-testid="stMetricValue"] {
-  font-size: 1.7rem !important;
+  font-size: 2rem !important;
   font-weight: 700 !important;
-  color: var(--blue-800) !important;
+  color: var(--zinc-950) !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.03em !important;
 }
 
-/* ── 데이터프레임 헤더 ─────────────────────────────────────── */
+/* ── 데이터프레임 ─────────────────────────────────────────── */
 [data-testid="stDataFrame"] th {
-  background: var(--blue-800) !important;
-  color: white !important;
+  background: var(--zinc-100) !important;
+  color: var(--zinc-700) !important;
   font-weight: 600 !important;
-  font-size: 0.82rem !important;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
 }
 [data-testid="stDataFrame"] tr:hover td {
-  background: var(--blue-50) !important;
+  background: var(--zinc-50) !important;
 }
 
 /* ── 알림 박스 ─────────────────────────────────────────────── */
 .stSuccess {
-  border-radius: 8px !important;
-  border-left: 4px solid var(--green-500) !important;
+  border-radius: 0.375rem !important;
+  border-left: 3px solid var(--green-600) !important;
 }
 .stWarning {
-  border-radius: 8px !important;
-  border-left: 4px solid var(--amber-500) !important;
+  border-radius: 0.375rem !important;
+  border-left: 3px solid var(--amber-600) !important;
 }
 .stError {
-  border-radius: 8px !important;
-  border-left: 4px solid var(--red-500) !important;
+  border-radius: 0.375rem !important;
+  border-left: 3px solid var(--red-600) !important;
 }
 .stInfo {
-  border-radius: 8px !important;
-  border-left: 4px solid var(--blue-500) !important;
+  border-radius: 0.375rem !important;
+  border-left: 3px solid var(--zinc-400) !important;
 }
 
-/* ── Selectbox ─────────────────────────────────────────────── */
+/* ── Selectbox, File uploader ─────────────────────────────── */
 .stSelectbox [data-baseweb="select"] {
-  border-radius: 8px !important;
+  border-radius: 0.375rem !important;
 }
-
-/* ── File uploader ─────────────────────────────────────────── */
 [data-testid="stFileUploader"] {
-  border-radius: 8px !important;
-  border: 2px dashed var(--gray-300) !important;
-  background: var(--gray-50) !important;
-  transition: all .2s !important;
+  border-radius: 0.375rem !important;
+  border: 2px dashed var(--zinc-300) !important;
+  background: white !important;
+  transition: all .15s !important;
 }
 [data-testid="stFileUploader"]:hover {
-  border-color: var(--blue-500) !important;
-  background: var(--blue-50) !important;
+  border-color: var(--zinc-950) !important;
+  background: var(--zinc-50) !important;
 }
 
 /* ── 구분선 ────────────────────────────────────────────────── */
 hr {
-  border-color: var(--gray-200) !important;
-  margin: 1.2rem 0 !important;
+  border: none !important;
+  border-top: 1px solid var(--zinc-200) !important;
+  margin: 1.5rem 0 !important;
 }
 
 /* ── 커스텀 헬퍼 클래스 ────────────────────────────────────── */
@@ -327,100 +336,84 @@ hr {
 /* 카드 컨테이너 */
 .ir-card {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-100);
+  border: 1px solid var(--zinc-200);
   margin-bottom: 1rem;
 }
 
-/* 섹션 타이틀 */
+/* 섹션 타이틀 — Swiss style 보더 하단 라인 */
 .ir-section-title {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 1.05rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: var(--gray-900);
-  padding: 0.7rem 1rem;
-  background: white;
-  border-left: 4px solid var(--blue-800);
-  border-radius: 0 var(--radius) var(--radius) 0;
-  box-shadow: var(--shadow-sm);
-  margin: 1.2rem 0 0.8rem 0;
+  color: var(--zinc-950);
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--zinc-950);
+  margin: 1.5rem 0 1rem 0;
+  letter-spacing: -0.02em;
 }
 
-/* 페이지 헤더 배너 */
+/* 페이지 헤더 배너 — 블랙 */
 .ir-header {
-  background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 60%, #1E40AF 100%);
+  background: var(--zinc-950);
   border-radius: var(--radius-lg);
-  padding: 1.6rem 2rem;
-  margin-bottom: 1.2rem;
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
 }
 .ir-header::before {
   content: '';
   position: absolute;
-  top: -40px; right: -40px;
-  width: 180px; height: 180px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 50%;
-}
-.ir-header::after {
-  content: '';
-  position: absolute;
-  bottom: -60px; left: 40%;
-  width: 240px; height: 240px;
-  background: rgba(255,255,255,0.04);
+  top: -50px; right: -50px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,0.03);
   border-radius: 50%;
 }
 .ir-header-left h1 {
   color: white !important;
-  font-size: 1.45rem !important;
+  font-size: 1.5rem !important;
   font-weight: 800 !important;
-  margin: 0 0 0.25rem 0 !important;
-  letter-spacing: -0.02em !important;
+  margin: 0 0 0.3rem 0 !important;
+  letter-spacing: -0.03em !important;
 }
 .ir-header-left p {
-  color: rgba(255,255,255,0.72) !important;
-  font-size: 0.85rem !important;
+  color: rgba(255,255,255,0.5) !important;
+  font-size: 0.875rem !important;
   margin: 0 !important;
 }
 .ir-header-right {
   text-align: right;
-  color: rgba(255,255,255,0.7);
-  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.8125rem;
   line-height: 1.6;
 }
 .ir-header-badge {
   display: inline-block;
-  background: rgba(245,158,11,0.85);
-  color: white;
-  font-size: 0.72rem;
+  background: white;
+  color: var(--zinc-950);
+  font-size: 0.6875rem;
   font-weight: 700;
-  padding: 0.18rem 0.6rem;
-  border-radius: 20px;
-  letter-spacing: .04em;
-  margin-bottom: 0.4rem;
+  padding: 0.2rem 0.625rem;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
 }
 
-/* 스텝 프로그레스 바 */
+/* 스텝 프로그레스 인디케이터 — 미니멀 */
 .ir-steps {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   background: white;
-  border-radius: var(--radius-lg);
-  padding: 1.2rem 1.5rem 1rem;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-100);
-  margin-bottom: 1.2rem;
-  position: relative;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem 1rem;
+  border: 1px solid var(--zinc-200);
+  margin-bottom: 1.5rem;
 }
 .ir-step {
   display: flex;
@@ -433,118 +426,128 @@ hr {
 .ir-step:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: 20px;
-  left: calc(50% + 20px);
-  right: calc(-50% + 20px);
-  height: 2px;
-  background: var(--gray-200);
+  top: 18px;
+  left: calc(50% + 18px);
+  right: calc(-50% + 18px);
+  height: 1px;
+  background: var(--zinc-200);
   z-index: 0;
 }
-.ir-step.done:not(:last-child)::after  { background: var(--blue-800); }
-.ir-step.active:not(:last-child)::after { background: var(--gray-200); }
+.ir-step.done:not(:last-child)::after  { background: var(--zinc-950); height: 2px; }
+.ir-step.active:not(:last-child)::after { background: var(--zinc-200); }
 
 .ir-step-circle {
-  width: 40px; height: 40px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.9rem;
-  border: 2px solid var(--gray-300);
+  font-size: 0.8125rem;
+  border: 1.5px solid var(--zinc-300);
   background: white;
-  color: var(--gray-400);
-  transition: all .3s;
+  color: var(--zinc-400);
+  transition: all .2s;
   z-index: 2;
   position: relative;
 }
-.ir-step.done  .ir-step-circle {
-  background: var(--blue-800);
-  border-color: var(--blue-800);
+.ir-step.done .ir-step-circle {
+  background: var(--zinc-950);
+  border-color: var(--zinc-950);
   color: white;
 }
 .ir-step.active .ir-step-circle {
   background: white;
-  border-color: var(--blue-800);
-  border-width: 2.5px;
-  color: var(--blue-800);
-  box-shadow: 0 0 0 4px var(--blue-100);
+  border-color: var(--zinc-950);
+  border-width: 2px;
+  color: var(--zinc-950);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
 }
 .ir-step-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  margin-top: 0.45rem;
-  color: var(--gray-400);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.4rem;
+  color: var(--zinc-400);
   text-align: center;
   line-height: 1.3;
   max-width: 76px;
 }
-.ir-step.done  .ir-step-label { color: var(--blue-800); }
-.ir-step.active .ir-step-label { color: var(--blue-800); }
+.ir-step.done  .ir-step-label { color: var(--zinc-700); }
+.ir-step.active .ir-step-label { color: var(--zinc-950); font-weight: 600; }
 
-/* GPT 섹션 헤더 (버튼 포함) */
+/* GPT 섹션 헤더 */
 .ir-gpt-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--blue-50);
-  border: 1px solid var(--blue-100);
+  background: var(--zinc-50);
+  border: 1px solid var(--zinc-200);
   border-radius: var(--radius);
-  padding: 0.75rem 1.1rem;
-  margin: 1.2rem 0 0.5rem 0;
+  padding: 0.875rem 1.25rem;
+  margin: 1.25rem 0 0.5rem 0;
 }
 .ir-gpt-title {
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   font-weight: 700;
-  color: var(--blue-900);
+  color: var(--zinc-900);
 }
 .ir-gpt-hint {
-  font-size: 0.78rem;
-  color: var(--gray-500);
+  font-size: 0.8125rem;
+  color: var(--zinc-500);
   margin-top: 0.15rem;
 }
 
-/* 완료 뱃지 */
+/* 뱃지 */
 .ir-badge-done {
   display: inline-block;
-  background: var(--green-100);
-  color: #065F46;
+  background: var(--zinc-900);
+  color: white;
   font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.18rem 0.7rem;
-  border-radius: 20px;
-  border: 1px solid #A7F3D0;
+  font-weight: 600;
+  padding: 0.2rem 0.625rem;
+  border-radius: 4px;
 }
 .ir-badge-empty {
   display: inline-block;
-  background: var(--gray-100);
-  color: var(--gray-500);
+  background: var(--zinc-100);
+  color: var(--zinc-500);
   font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.18rem 0.7rem;
-  border-radius: 20px;
-  border: 1px solid var(--gray-200);
+  font-weight: 500;
+  padding: 0.2rem 0.625rem;
+  border-radius: 4px;
+  border: 1px solid var(--zinc-200);
 }
 
 /* 푸터 */
 .ir-footer {
   text-align: center;
-  color: var(--gray-400);
-  font-size: 0.78rem;
-  padding: 1rem 0 0.5rem;
-  border-top: 1px solid var(--gray-200);
-  margin-top: 0.5rem;
+  color: var(--zinc-400);
+  font-size: 0.8125rem;
+  padding: 1.25rem 0 0.5rem;
+  border-top: 1px solid var(--zinc-200);
+  margin-top: 1rem;
 }
 
-/* 통계 요약 배너 */
+/* 통계 배너 */
 .ir-stat-banner {
-  background: linear-gradient(90deg, var(--blue-50) 0%, white 100%);
-  border: 1px solid var(--blue-100);
+  background: white;
+  border: 1px solid var(--zinc-200);
   border-radius: var(--radius);
-  padding: 0.9rem 1.2rem;
+  padding: 0.875rem 1.25rem;
   margin-bottom: 1rem;
-  font-size: 0.88rem;
-  color: var(--gray-700);
+  font-size: 0.875rem;
+  color: var(--zinc-600);
+}
+
+/* 마이크로 인터랙션 */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ir-section-title,
+.ir-stat-banner,
+.ir-gpt-header {
+  animation: fadeInUp 0.3s ease-out;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -617,8 +620,7 @@ def _go(step: int):
                        "narrative_regional", "narrative_yoy")
     for k in _narrative_keys:
         val = st.session_state.get(k, "")
-        if val:
-            st.session_state[f"_saved_{k}"] = val
+        st.session_state[f"_saved_{k}"] = val
 
     # 4단계로 돌아올 때 저장된 값 복원 (위젯이 다시 렌더되므로 key에 재설정)
     if step == 4:
@@ -649,14 +651,14 @@ def _calc_stats():
 # ===========================================================================
 with st.sidebar:
     st.markdown("""
-    <div style="padding:1.2rem 0 1rem; text-align:center; border-bottom:1px solid rgba(255,255,255,0.12); margin-bottom:1rem;">
-      <div style="font-size:1.4rem; margin-bottom:0.3rem;">📊</div>
-      <div style="font-size:0.95rem; font-weight:700; color:white; letter-spacing:-0.01em;">IR 분석 포털</div>
-      <div style="font-size:0.72rem; color:rgba(255,255,255,0.5); margin-top:0.2rem;">호서대학교 IR센터</div>
+    <div style="padding:1.2rem 0 1rem; text-align:center; border-bottom:1px solid #E4E4E7; margin-bottom:1rem;">
+      <div style="font-size:1.3rem; margin-bottom:0.3rem;">📊</div>
+      <div style="font-size:0.9375rem; font-weight:700; color:#18181B; letter-spacing:-0.02em;">IR 분석 포털</div>
+      <div style="font-size:0.75rem; color:#71717A; margin-top:0.2rem;">호서대학교 IR센터</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div style="font-size:0.78rem; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:.08em; text-transform:uppercase; margin-bottom:0.5rem;">🔑 OpenAI API Key</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:0.8125rem; font-weight:600; color:#71717A; letter-spacing:.04em; text-transform:uppercase; margin-bottom:0.5rem;">🔑 OpenAI API Key</div>', unsafe_allow_html=True)
 
     key_input = st.text_input(
         "API Key",
@@ -692,35 +694,35 @@ with st.sidebar:
     else:
         st.warning("API Key 미설정")
 
-    st.markdown('<hr style="margin:1.2rem 0;"/>', unsafe_allow_html=True)
+    st.markdown('<hr style="margin:1.5rem 0;"/>', unsafe_allow_html=True)
 
     # --- 진행 단계 표시 ---
-    st.markdown('<div style="font-size:0.78rem; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:.08em; text-transform:uppercase; margin-bottom:0.7rem;">📋 진행 단계</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:0.8125rem; font-weight:600; color:#71717A; letter-spacing:.04em; text-transform:uppercase; margin-bottom:0.7rem;">📋 진행 단계</div>', unsafe_allow_html=True)
 
     step_icons = ["📂", "📋", "📈", "🤖", "📄"]
     step_names = ["데이터 설정", "통계 확인", "그래프 검토", "GPT 서술", "보고서 생성"]
     cur = st.session_state.step
     for i, (icon, name) in enumerate(zip(step_icons, step_names), start=1):
         if i < cur:
-            style = "opacity:.65; color:rgba(255,255,255,0.8) !important;"
+            style = "opacity:.6; color:#71717A !important;"
             prefix = "✓"
             weight = "500"
         elif i == cur:
-            style = "background:rgba(255,255,255,0.12); border-radius:8px; padding:0.3rem 0.5rem;"
+            style = "background:#F4F4F5; border-radius:6px; padding:0.3rem 0.5rem; border-left:3px solid #18181B;"
             prefix = "▶"
             weight = "700"
         else:
-            style = "opacity:.4;"
+            style = "opacity:.35;"
             prefix = f"{i}."
             weight = "400"
         st.markdown(
-            f'<div style="{style} font-size:0.88rem; font-weight:{weight}; color:rgba(255,255,255,0.9); padding:0.25rem 0.3rem; display:flex; align-items:center; gap:0.4rem;">'
+            f'<div style="{style} font-size:0.88rem; font-weight:{weight}; color:#3F3F46; padding:0.25rem 0.3rem; display:flex; align-items:center; gap:0.4rem;">'
             f'<span style="font-size:0.8rem; min-width:1.1rem;">{prefix}</span>'
             f'<span>{icon} {name}</span></div>',
             unsafe_allow_html=True,
         )
 
-    st.markdown('<hr style="margin:1.2rem 0;"/>', unsafe_allow_html=True)
+    st.markdown('<hr style="margin:1.5rem 0;"/>', unsafe_allow_html=True)
 
     if st.button("🔄 처음부터 다시", use_container_width=True):
         for k, v in _DEFAULTS.items():
@@ -735,14 +737,14 @@ with st.sidebar:
 st.markdown(f"""
 <div class="ir-header">
   <div class="ir-header-left">
-    <div class="ir-header-badge">IR Analytics Portal</div>
-    <h1>📊 {UNIVERSITY} 연구실적 분석 포털</h1>
-    <p>전임교원 SCI/SCOPUS 논문수 현황 · 충청권·전국 비교 분석 · 보고서 자동생성</p>
+    <div class="ir-header-badge">IR Analytics</div>
+    <h1>{UNIVERSITY} 연구실적 분석 포털</h1>
+    <p>전임교원 SCI/SCOPUS 논문 현황 · 비교 분석 · 보고서 자동생성</p>
   </div>
   <div class="ir-header-right">
-    <div style="font-size:0.78rem; color:rgba(255,255,255,0.55);">기준일</div>
-    <div style="font-size:0.92rem; font-weight:600; color:white;">{_TODAY}</div>
-    <div style="margin-top:0.6rem; font-size:0.78rem; color:rgba(255,255,255,0.5);">v3.0  ·  GPT-4o</div>
+    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">기준일</div>
+    <div style="font-size:0.875rem; font-weight:600; color:white;">{_TODAY}</div>
+    <div style="margin-top:0.5rem; font-size:0.75rem; color:rgba(255,255,255,0.35);">v4.0 · GPT-4o</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1026,7 +1028,11 @@ elif st.session_state.step == 2:
 
     st.divider()
 
-    with st.expander("📋 연도별 상세 수치", expanded=True):
+    tab_detail, tab_avg, tab_compare, tab_yoy = st.tabs([
+        "📋 연도별 상세", "📊 평균 비교", "🏫 비교군 현황", "📈 전년대비 증감"
+    ])
+
+    with tab_detail:
         rows = []
         for y, d in sorted(hoseo.items()):
             r = ranks.get(y, {})
@@ -1042,7 +1048,7 @@ elif st.session_state.step == 2:
             })
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
-    with st.expander("📊 연도별 평균 비교", expanded=True):
+    with tab_avg:
         avg_rows = []
         for y, a in sorted(avgs.items()):
             h = hoseo.get(y, {})
@@ -1055,10 +1061,10 @@ elif st.session_state.step == 2:
             })
         st.dataframe(pd.DataFrame(avg_rows), use_container_width=True, hide_index=True)
 
-    with st.expander(f"🏫 비교군 현황 ({year}년)", expanded=True):
+    with tab_compare:
         st.dataframe(pd.DataFrame(cmpd), use_container_width=True, hide_index=True)
 
-    with st.expander(f"📈 전년대비 증감 ({year-1}→{year}년)", expanded=False):
+    with tab_yoy:
         if yoy.get("상위") or yoy.get("하위"):
             col_top, col_bot = st.columns(2)
             with col_top:
@@ -1117,10 +1123,9 @@ elif st.session_state.step == 3:
             buf = charts[key]
             buf.seek(0)
             st.image(buf, use_container_width=True)
-            buf.seek(0)
             st.download_button(
                 "⬇️ 이미지 저장",
-                data=buf.read(),
+                data=buf.getvalue(),
                 file_name=f"{key}_{year}.png",
                 mime="image/png",
                 key=f"dl_{key}",
@@ -1159,51 +1164,30 @@ elif st.session_state.step == 4:
     def _get_client() -> OpenAI:
         return OpenAI(api_key=st.session_state.api_key)
 
-    # ── GPT 버튼 처리 (text_area 렌더 전에 먼저 실행) ──────────────────────
-    if st.button("🤖 섹션 1 생성: 연도별 추이", key="gen_trend"):
-        with st.spinner("GPT 생성 중... (10~20초 소요)"):
+    # ── 전체 일괄 생성 버튼 (최상단) ──────────────────────────────────────
+    if st.button("🤖 전체 섹션 일괄 생성", type="primary", use_container_width=True, key="gen_all"):
+        _gen_all_ok = False
+        with st.spinner("GPT 생성 중... 4개 섹션 순차 처리 (40~60초 소요)"):
             try:
-                st.session_state.narrative_trend = gpt.generate_trend_narrative(
-                    _get_client(), hoseo, avgs
-                )
-                st.rerun()
+                client = _get_client()
+                if not st.session_state.narrative_trend:
+                    st.session_state.narrative_trend = gpt.generate_trend_narrative(client, hoseo, avgs)
+                if not st.session_state.narrative_comparison:
+                    st.session_state.narrative_comparison = gpt.generate_comparison_narrative(client, cmpd, avgs, year)
+                if not st.session_state.narrative_regional:
+                    st.session_state.narrative_regional = gpt.generate_regional_narrative(client, hoseo, ranks)
+                if not st.session_state.narrative_yoy:
+                    st.session_state.narrative_yoy = gpt.generate_yoy_narrative(client, yoy, year)
+                _gen_all_ok = True
             except Exception as e:
                 st.error(f"GPT 오류: {e}")
-
-    if st.button("🤖 섹션 2 생성: 비교군 분석", key="gen_comparison"):
-        with st.spinner("GPT 생성 중... (10~20초 소요)"):
-            try:
-                st.session_state.narrative_comparison = gpt.generate_comparison_narrative(
-                    _get_client(), cmpd, avgs, year
-                )
-                st.rerun()
-            except Exception as e:
-                st.error(f"GPT 오류: {e}")
-
-    if st.button("🤖 섹션 3 생성: 충청권 순위", key="gen_regional"):
-        with st.spinner("GPT 생성 중... (10~20초 소요)"):
-            try:
-                st.session_state.narrative_regional = gpt.generate_regional_narrative(
-                    _get_client(), hoseo, ranks
-                )
-                st.rerun()
-            except Exception as e:
-                st.error(f"GPT 오류: {e}")
-
-    if st.button("🤖 섹션 4 생성: 전년대비 증감", key="gen_yoy"):
-        with st.spinner("GPT 생성 중... (10~20초 소요)"):
-            try:
-                st.session_state.narrative_yoy = gpt.generate_yoy_narrative(
-                    _get_client(), yoy, year
-                )
-                st.rerun()
-            except Exception as e:
-                st.error(f"GPT 오류: {e}")
+        if _gen_all_ok:
+            st.rerun()
 
     st.divider()
 
     # ── 섹션 1 ─────────────────────────────────────────────────────────────
-    _badge1 = '<span class="ir-badge-done">✓ 작성 완료</span>' if st.session_state.narrative_trend else '<span class="ir-badge-empty">미작성</span>'
+    _badge1 = '<span class="ir-badge-done">완료</span>' if st.session_state.narrative_trend else '<span class="ir-badge-empty">미작성</span>'
     st.markdown(f"""
     <div class="ir-gpt-header">
       <div>
@@ -1213,16 +1197,28 @@ elif st.session_state.step == 4:
       {_badge1}
     </div>
     """, unsafe_allow_html=True)
+
+    col_btn1, col_space1 = st.columns([1, 3])
+    with col_btn1:
+        if st.button("🤖 GPT 생성", key="gen_trend"):
+            with st.spinner("섹션 1 생성 중..."):
+                try:
+                    st.session_state.narrative_trend = gpt.generate_trend_narrative(_get_client(), hoseo, avgs)
+                except Exception as e:
+                    st.error(f"GPT 오류: {e}")
+                else:
+                    st.rerun()
+
     st.text_area(
         "내용 직접 편집 가능",
         key="narrative_trend",
         height=160,
-        placeholder="위의 [🤖 섹션 1 생성] 버튼을 누르거나 직접 입력하세요.",
+        placeholder="[🤖 GPT 생성] 버튼을 누르거나 직접 입력하세요.",
         label_visibility="collapsed",
     )
 
     # ── 섹션 2 ─────────────────────────────────────────────────────────────
-    _badge2 = '<span class="ir-badge-done">✓ 작성 완료</span>' if st.session_state.narrative_comparison else '<span class="ir-badge-empty">미작성</span>'
+    _badge2 = '<span class="ir-badge-done">완료</span>' if st.session_state.narrative_comparison else '<span class="ir-badge-empty">미작성</span>'
     st.markdown(f"""
     <div class="ir-gpt-header">
       <div>
@@ -1232,16 +1228,28 @@ elif st.session_state.step == 4:
       {_badge2}
     </div>
     """, unsafe_allow_html=True)
+
+    col_btn2, col_space2 = st.columns([1, 3])
+    with col_btn2:
+        if st.button("🤖 GPT 생성", key="gen_comparison"):
+            with st.spinner("섹션 2 생성 중..."):
+                try:
+                    st.session_state.narrative_comparison = gpt.generate_comparison_narrative(_get_client(), cmpd, avgs, year)
+                except Exception as e:
+                    st.error(f"GPT 오류: {e}")
+                else:
+                    st.rerun()
+
     st.text_area(
         "내용 직접 편집 가능",
         key="narrative_comparison",
         height=160,
-        placeholder="위의 [🤖 섹션 2 생성] 버튼을 누르거나 직접 입력하세요.",
+        placeholder="[🤖 GPT 생성] 버튼을 누르거나 직접 입력하세요.",
         label_visibility="collapsed",
     )
 
     # ── 섹션 3 ─────────────────────────────────────────────────────────────
-    _badge3 = '<span class="ir-badge-done">✓ 작성 완료</span>' if st.session_state.narrative_regional else '<span class="ir-badge-empty">미작성</span>'
+    _badge3 = '<span class="ir-badge-done">완료</span>' if st.session_state.narrative_regional else '<span class="ir-badge-empty">미작성</span>'
     st.markdown(f"""
     <div class="ir-gpt-header">
       <div>
@@ -1251,16 +1259,28 @@ elif st.session_state.step == 4:
       {_badge3}
     </div>
     """, unsafe_allow_html=True)
+
+    col_btn3, col_space3 = st.columns([1, 3])
+    with col_btn3:
+        if st.button("🤖 GPT 생성", key="gen_regional"):
+            with st.spinner("섹션 3 생성 중..."):
+                try:
+                    st.session_state.narrative_regional = gpt.generate_regional_narrative(_get_client(), hoseo, ranks)
+                except Exception as e:
+                    st.error(f"GPT 오류: {e}")
+                else:
+                    st.rerun()
+
     st.text_area(
         "내용 직접 편집 가능",
         key="narrative_regional",
         height=160,
-        placeholder="위의 [🤖 섹션 3 생성] 버튼을 누르거나 직접 입력하세요.",
+        placeholder="[🤖 GPT 생성] 버튼을 누르거나 직접 입력하세요.",
         label_visibility="collapsed",
     )
 
     # ── 섹션 4 ─────────────────────────────────────────────────────────────
-    _badge4 = '<span class="ir-badge-done">✓ 작성 완료</span>' if st.session_state.narrative_yoy else '<span class="ir-badge-empty">미작성</span>'
+    _badge4 = '<span class="ir-badge-done">완료</span>' if st.session_state.narrative_yoy else '<span class="ir-badge-empty">미작성</span>'
     st.markdown(f"""
     <div class="ir-gpt-header">
       <div>
@@ -1270,11 +1290,23 @@ elif st.session_state.step == 4:
       {_badge4}
     </div>
     """, unsafe_allow_html=True)
+
+    col_btn4, col_space4 = st.columns([1, 3])
+    with col_btn4:
+        if st.button("🤖 GPT 생성", key="gen_yoy"):
+            with st.spinner("섹션 4 생성 중..."):
+                try:
+                    st.session_state.narrative_yoy = gpt.generate_yoy_narrative(_get_client(), yoy, year)
+                except Exception as e:
+                    st.error(f"GPT 오류: {e}")
+                else:
+                    st.rerun()
+
     st.text_area(
         "내용 직접 편집 가능",
         key="narrative_yoy",
         height=160,
-        placeholder="위의 [🤖 섹션 4 생성] 버튼을 누르거나 직접 입력하세요.",
+        placeholder="[🤖 GPT 생성] 버튼을 누르거나 직접 입력하세요.",
         label_visibility="collapsed",
     )
 
@@ -1353,7 +1385,6 @@ elif st.session_state.step == 5:
                 st.session_state.report_buf = buf
             except Exception as e:
                 st.error(f"오류 발생: {e}")
-                raise
 
     if st.session_state.report_buf:
         st.success("✅ 보고서 생성 완료!")
@@ -1383,7 +1414,7 @@ elif st.session_state.step == 5:
 # ===========================================================================
 st.markdown(f"""
 <div class="ir-footer">
-  호서대학교 IR센터 · 연구실적 분석 포털 v3.0 &nbsp;|&nbsp;
+  {UNIVERSITY} IR센터 · 연구실적 분석 포털 v4.0 &nbsp;|&nbsp;
   현재 단계: {st.session_state.step}/5 &nbsp;|&nbsp;
   Powered by GPT-4o &amp; Streamlit
 </div>
