@@ -155,6 +155,57 @@ Windows 기준. Linux 배포 시 `NanumGothic` 등으로 변경.
 
 ---
 
+## 메모리 시스템 (필수 준수)
+
+이 프로젝트는 **컴포넌트별 메모리 파일 시스템**을 사용한다. 모든 작업에서 아래 규칙을 따를 것.
+
+### 메모리 파일 위치
+`~/.claude/projects/C--Users-----Desktop-IR---MCP/memory/`
+
+### 메모리 파일 목록
+| 파일 | 내용 | 참조 시점 |
+|------|------|-----------|
+| `MEMORY.md` | 인덱스 + 전체 요약 | 항상 |
+| `architecture.md` | 8-Layer 구조, 흐름도, 라우팅 | 구조 변경 시 |
+| `components.md` | UI 컴포넌트 6개 상세 | UI 수정 시 |
+| `data-pipeline.md` | 전처리→CSV→통계 흐름 | 데이터 수정 시 |
+| `session-state.md` | session_state 키 전체 | 상태 버그 수정 시 |
+| `design-patterns.md` | 패턴 7종 + anti-pattern | 리팩토링 시 |
+| `modification-guide.md` | 안전/위험 수정 포인트 | **모든 수정 전 필독** |
+| `gpt-prompts.md` | GPT 프롬프트 구조 | 서술 개선 시 |
+
+### 작업 전 (필수)
+1. `modification-guide.md`를 먼저 읽어 수정 영향 범위 파악
+2. 수정 대상과 관련된 메모리 파일 읽기 (위 표 참조)
+3. 기존 설계 패턴/컨벤션 확인 후 일관되게 구현
+
+### 작업 후 (필수)
+1. 수정한 파일과 관련된 메모리 파일 업데이트
+2. `MEMORY.md`의 "최종 업데이트" 날짜 갱신
+3. 새 파일 추가/구조 변경 시 → `architecture.md` 반드시 업데이트
+4. 새 session_state 키 추가 시 → `session-state.md` 반드시 업데이트
+5. 새 컴포넌트 추가 시 → `components.md` 반드시 업데이트
+
+### 파일→메모리 매핑
+```
+app.py              → architecture.md, session-state.md
+config.py           → architecture.md, data-pipeline.md, gpt-prompts.md
+data_loader.py      → data-pipeline.md, session-state.md
+chart_generator.py  → data-pipeline.md
+gpt_reporter.py     → gpt-prompts.md
+report_builder.py   → data-pipeline.md
+components/*        → components.md
+research.py         → architecture.md, session-state.md, design-patterns.md
+home.py, settings.py → architecture.md
+전처리 스크립트      → data-pipeline.md
+```
+
+### Stop 훅 자동 리마인더
+작업 완료 시 `memory_update_reminder.py`가 자동 실행되어 업데이트 필요한 메모리 파일을 알려준다.
+이 리마인더가 출력되면 반드시 해당 메모리 파일을 업데이트한 후 작업을 종료할 것.
+
+---
+
 ## 향후 지표 추가 방법 (교육비환원율 등)
 
 `report_app/indicators/` 폴더에 동일 인터페이스로 모듈 추가:
@@ -235,3 +286,4 @@ def get_narrative(client: OpenAI) -> dict[str, str]: ...
 | 2026-03-09 | 수정: `gpt_reporter.py` |
 | 2026-03-09 | 수정: `report_builder.py` |
 | 2026-03-09 | 수정: `research.py` |
+| 2026-03-10 | 신규 생성: `memory_update_reminder.py` |

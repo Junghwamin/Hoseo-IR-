@@ -91,6 +91,15 @@
             "command": "python \"C:\\Users\\정화민\\Desktop\\IR센터 MCP\\scripts\\session_end_summary.py\""
           }
         ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"C:\\Users\\정화민\\Desktop\\IR센터 MCP\\scripts\\memory_update_reminder.py\""
+          }
+        ]
       }
     ]
 
