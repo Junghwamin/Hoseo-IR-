@@ -87,10 +87,10 @@ def _add_image(doc: Document, img_buf: BytesIO, width_cm: float = 15.0):
 # 표 생성 헬퍼
 # ---------------------------------------------------------------------------
 
-def _add_trend_table(doc: Document, hoseo_trend: dict[int, dict]):
+def _add_trend_table(doc: Document, hoseo_trend: dict[int, dict], region_name: str = "충청권"):
     """연도별 호서대 수치 표."""
     years = sorted(hoseo_trend.keys())
-    headers = ["연도", "전임교원수", "SCI/SCOPUS 논문수", "1인당 논문수", "충청권 순위", "전국 순위"]
+    headers = ["연도", "전임교원수", "SCI/SCOPUS 논문수", "1인당 논문수", f"{region_name} 순위", "전국 순위"]
 
     table = doc.add_table(rows=1 + len(years), cols=len(headers))
     table.style = "Table Grid"
@@ -112,7 +112,7 @@ def _add_trend_table(doc: Document, hoseo_trend: dict[int, dict]):
             f"{d['전임교원수']:,}명",
             f"{d['논문수']:.2f}편",
             f"{d['1인당논문수']:.4f}",
-            f"{d['충청권순위']}위" if d['충청권순위'] else "-",
+            f"{d['권역순위']}위" if d['권역순위'] else "-",
             f"{d['전국순위']}위",
         ]
         row_cells = table.rows[row_idx + 1].cells
@@ -127,7 +127,7 @@ def _add_trend_table(doc: Document, hoseo_trend: dict[int, dict]):
     doc.add_paragraph()
 
 
-def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int, univ: str = UNIVERSITY):
+def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int, univ: str = UNIVERSITY, region_name: str = "충청권"):
     """비교군 5개교 현황 표.
 
     Args:
@@ -135,8 +135,9 @@ def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int,
         compare_data: 비교군 대학별 데이터 리스트
         year: 기준 연도
         univ: 강조 표시할 대학명 (기본값: config의 UNIVERSITY)
+        region_name: 권역명 (기본값: "충청권")
     """
-    headers = ["대학명", "전임교원수", "논문수", "1인당 논문수", "전국 순위", "충청권 순위"]
+    headers = ["대학명", "전임교원수", "논문수", "1인당 논문수", "전국 순위", f"{region_name} 순위"]
 
     table = doc.add_table(rows=1 + len(compare_data), cols=len(headers))
     table.style = "Table Grid"
@@ -157,7 +158,7 @@ def _add_compare_group_table(doc: Document, compare_data: list[dict], year: int,
             f"{d['논문수']:.2f}편",
             f"{d['1인당논문수']:.4f}",
             f"{d['전국순위']}위",
-            f"{d['충청권순위']}위" if d['충청권순위'] else "-",
+            f"{d['권역순위']}위" if d['권역순위'] else "-",
         ]
         row_cells = table.rows[row_idx + 1].cells
         bg = "FFF2CC" if is_hoseo else ("D6E4F0" if row_idx % 2 == 0 else "FFFFFF")
@@ -224,6 +225,7 @@ def build_report(
     charts: dict[str, BytesIO],
     narratives: dict[str, str],
     university: str | None = None,
+    region_name: str = "충청권",
 ) -> BytesIO:
     """
     모든 섹션을 조립하여 Word BytesIO 파일을 반환한다.
@@ -288,7 +290,7 @@ def build_report(
     if narratives.get("trend"):
         _add_narrative(doc, narratives["trend"])
 
-    _add_trend_table(doc, hoseo_trend)
+    _add_trend_table(doc, hoseo_trend, region_name=region_name)
 
     if charts.get("trend"):
         _add_image(doc, charts["trend"], width_cm=14.0)
@@ -296,7 +298,7 @@ def build_report(
     # ========================================================
     # 섹션 2: 전국·충청권·비교군 평균 비교
     # ========================================================
-    _add_heading(doc, f"2. 전국·충청권·{COMPARE_GROUP_NAME} 평균 비교 ({year}년)")
+    _add_heading(doc, f"2. 전국·{region_name}·{COMPARE_GROUP_NAME} 평균 비교 ({year}년)")
 
     if narratives.get("comparison"):
         _add_narrative(doc, narratives["comparison"])
@@ -307,7 +309,7 @@ def build_report(
     # ========================================================
     # 섹션 3: 충청권 내 비교
     # ========================================================
-    _add_heading(doc, f"3. 충청권 대학 비교 ({year}년)")
+    _add_heading(doc, f"3. {region_name} 대학 비교 ({year}년)")
 
     if narratives.get("regional"):
         _add_narrative(doc, narratives["regional"])
@@ -323,7 +325,7 @@ def build_report(
     # ========================================================
     _add_heading(doc, f"4. {COMPARE_GROUP_NAME} 현황 ({year}년)")
 
-    _add_compare_group_table(doc, compare_data, year, univ=univ)
+    _add_compare_group_table(doc, compare_data, year, univ=univ, region_name=region_name)
 
     if charts.get("compare"):
         _add_image(doc, charts["compare"], width_cm=11.0)

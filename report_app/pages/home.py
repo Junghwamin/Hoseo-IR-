@@ -48,7 +48,7 @@ def render_home() -> str | None:
             <div class="ir-module-title">전임교원 연구실적</div>
             <div class="ir-module-desc">
                 SCI/SCOPUS 논문 현황 분석<br>
-                전국·충청권·비교군 비교<br>
+                전국·권역별·비교군 비교<br>
                 GPT 보고서 자동 생성
             </div>
         </div>
