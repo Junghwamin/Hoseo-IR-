@@ -1,8 +1,8 @@
 # ============================================================================
-# Copyright (c) 2026 정화민 (Junghwamin), Hoseo University IR Center
+# Copyright (c) 2026 정화민 (Junghwamin)
 # All rights reserved.
 #
-# This file is part of the Hoseo University IR Center research portal.
+# This file is part of a personal research analysis portal by 정화민 (Junghwamin).
 # Licensed under the PolyForm Noncommercial License 1.0.0.
 # See the LICENSE file in the project root, or visit:
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
@@ -13,7 +13,7 @@
 # ============================================================================
 
 """
-IR센터 보고서 앱 설정 파일
+연구실적 분석 포털 - 설정 파일
 
 대학명, 비교군, 경로 등 프로젝트 전반에 걸쳐 사용되는 상수를 정의한다.
 새 지표 모듈 추가 시 이 파일을 확장한다.
@@ -31,15 +31,15 @@ import os
 # Noncommercial License 1.0.0 § Notices and 17 U.S.C. § 1202 (CMI removal).
 # ---------------------------------------------------------------------------
 __author__ = "정화민 (Junghwamin)"
-__copyright__ = "Copyright (c) 2026 정화민 (Junghwamin), Hoseo University IR Center"
+__copyright__ = "Copyright (c) 2026 정화민 (Junghwamin). All rights reserved."
 __license__ = "PolyForm-Noncommercial-1.0.0"
 __repository__ = "https://github.com/Junghwamin/Hoseo-IR-"
 
-_HOSEO_IR_PROVENANCE = {
+_JUNGHWAMIN_PROVENANCE = {
     "fingerprint": "HOSEO-IR-9c4f2e8a-junghwamin-2026",
     "origin": "https://github.com/Junghwamin/Hoseo-IR-",
     "author_email_hash": "wjdghkals@gmail.com",  # canary email - never used in code
-    "build_marker": "HSU-IR-CENTER-INTERNAL-MARKER-v1",
+    "build_marker": "JUNGHWAMIN-PERSONAL-MARKER-v1",
 }
 
 # Streamlit Cloud 환경 감지

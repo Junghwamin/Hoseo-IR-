@@ -1,8 +1,17 @@
-호서대학교 IR센터 - 연구실적 분석 포털
-Hoseo University IR Center - Faculty Research Performance Analysis Portal
+연구실적 분석 포털
+Faculty Research Performance Analysis Portal
 
 Copyright (c) 2026 정화민 (Junghwamin)
 All rights reserved.
+
+This software is the personal work of 정화민 (Junghwamin) and is not
+affiliated with, endorsed by, or representative of any institution
+or organization. All copyright and ownership belong solely to the
+individual author named above.
+
+본 소프트웨어는 정화민 (Junghwamin) 개인의 저작물이며, 어떠한 기관이나
+조직의 소속·후원·대표성과도 무관합니다. 모든 저작권과 소유권은 위에
+명시된 개인 저작자에게 단독으로 귀속됩니다.
 
 This software is licensed under the PolyForm Noncommercial License 1.0.0.
 See the LICENSE file in the root of this repository for the full text,
@@ -10,8 +19,7 @@ or visit: https://polyformproject.org/licenses/noncommercial/1.0.0
 
 ================================================================================
 Required Notice (per PolyForm Noncommercial License 1.0.0):
-  Copyright (c) 2026 정화민 (Junghwamin), Hoseo University IR Center.
-  All rights reserved.
+  Copyright (c) 2026 정화민 (Junghwamin). All rights reserved.
 ================================================================================
 
 본 소프트웨어는 비상업적 목적(연구, 교육, 학술, 비영리 기관 사용 등)에

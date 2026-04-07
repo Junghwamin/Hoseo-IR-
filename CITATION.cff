@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "호서대학교 IR센터 연구실적 분석 포털 (Hoseo University IR Center - Faculty Research Performance Analysis Portal)"
+title: "연구실적 분석 포털 (Faculty Research Performance Analysis Portal)"
 abstract: >-
   대학알리미 원시 데이터를 자동 전처리하고, GPT-4o 기반 서술 생성과
   matplotlib 차트, python-docx Word 보고서를 자동 생성하는 Streamlit 웹 앱.
@@ -8,21 +8,20 @@ abstract: >-
   from the Korean University Information Disclosure System, generates
   AI-powered narratives using GPT-4o, creates charts via matplotlib,
   and assembles Word reports using python-docx.
+  This is a personal project independently developed by 정화민 (Junghwamin)
+  and is not affiliated with any institution or organization.
 type: software
 authors:
   - family-names: "정"
     given-names: "화민"
     alias: "Junghwamin"
-    affiliation: "Hoseo University IR Center"
 repository-code: "https://github.com/Junghwamin/Hoseo-IR-"
 url: "https://github.com/Junghwamin/Hoseo-IR-"
 license: "LicenseRef-PolyForm-Noncommercial-1.0.0"
 license-url: "https://polyformproject.org/licenses/noncommercial/1.0.0"
 keywords:
-  - "institutional research"
   - "higher education analytics"
   - "research performance"
-  - "Hoseo University"
   - "대학알리미"
   - "연구실적"
   - "Streamlit"
