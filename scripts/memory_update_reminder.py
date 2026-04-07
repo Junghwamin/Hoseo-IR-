@@ -9,8 +9,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 """
 Stop 훅: 메모리 파일 업데이트 리마인더
@@ -25,7 +25,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-PROJECT_ROOT = Path("C:/Users/정화민/Desktop/IR센터 MCP")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MEMORY_DIR = Path("C:/Users/정화민/.claude/projects/C--Users-----Desktop-IR---MCP/memory")
 CHANGE_LOG = PROJECT_ROOT / "change_log.txt"
 

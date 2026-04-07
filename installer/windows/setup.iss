@@ -1,5 +1,5 @@
 ; ===========================================================================
-; 호서대학교 IR센터 연구실적 분석 포털 - Inno Setup 스크립트
+; 호서대학교 정화민 - 연구실적 분석 포털 - Inno Setup 스크립트
 ;
 ; 빌드 방법:
 ;   1. python installer/windows/build_windows.py 실행
@@ -7,9 +7,9 @@
 ;   3. dist/windows/ 에 설치 파일 생성
 ; ===========================================================================
 
-#define MyAppName "호서대학교 IR센터 연구실적 분석 포털"
+#define MyAppName "호서대학교 정화민 - 연구실적 분석 포털"
 #define MyAppVersion "3.0"
-#define MyAppPublisher "호서대학교 IR센터"
+#define MyAppPublisher "정화민 (Junghwamin)"
 #define MyAppExeName "launcher.pyw"
 
 [Setup]
@@ -46,15 +46,15 @@ Name: "{app}\Raw data"
 
 [Icons]
 ; 바탕화면 아이콘
-Name: "{userdesktop}\IR센터 연구실적 분석 포털"; \
+Name: "{userdesktop}\연구실적 분석 포털"; \
     Filename: "{app}\python-embed\pythonw.exe"; \
     Parameters: """{app}\launcher.pyw"""; \
     WorkingDir: "{app}"; \
     IconFilename: "{app}\icon.ico"; \
-    Comment: "호서대학교 IR센터 연구실적 분석 포털"
+    Comment: "호서대학교 정화민 - 연구실적 분석 포털"
 
 ; 시작 메뉴
-Name: "{group}\IR센터 연구실적 분석 포털"; \
+Name: "{group}\연구실적 분석 포털"; \
     Filename: "{app}\python-embed\pythonw.exe"; \
     Parameters: """{app}\launcher.pyw"""; \
     WorkingDir: "{app}"; \

@@ -8,8 +8,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 
 # pages 패키지 초기화

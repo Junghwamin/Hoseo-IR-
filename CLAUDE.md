@@ -1,9 +1,10 @@
-# 호서대학교 IR센터 보고서 자동생성 앱
+# 호서대학교 정화민 - 연구실적 분석 포털
 
 ## 프로젝트 개요
 
-호서대학교 IR센터에서 전임교원 연구실적 데이터(대학알리미)를 자동으로 분석하고
+전임교원 연구실적 데이터(대학알리미)를 자동으로 분석하고
 GPT-4o + matplotlib + python-docx를 사용하여 Word 보고서를 자동 생성하는 Streamlit 앱.
+정화민 (Junghwamin) 개인 프로젝트.
 
 ---
 
@@ -14,7 +15,7 @@ GPT-4o + matplotlib + python-docx를 사용하여 Word 보고서를 자동 생�
 pip install -r requirements.txt
 
 # Streamlit 앱 실행 (프로젝트 루트에서 실행 필수)
-cd "C:\Users\정화민\Desktop\IR센터 MCP"
+cd "C:\Users\HOSEO\Desktop\Hoseo-IR-"
 streamlit run report_app/app.py
 ```
 
@@ -135,7 +136,7 @@ Windows 기준. Linux 배포 시 `NanumGothic` 등으로 변경.
 - GPT-4o 미사용 계정: `config.py`의 `GPT_MODEL = "gpt-4"` 로 변경
 
 ### Streamlit 실행 오류
-- 반드시 프로젝트 루트(`IR센터 MCP/`)에서 실행해야 상대경로 정상 동작
+- 반드시 프로젝트 루트(`Hoseo-IR-/`)에서 실행해야 상대경로 정상 동작
 
 ### CSS 적용 시 주의사항 (v3.0)
 - Streamlit CSS 우선순위 때문에 `!important` 필수

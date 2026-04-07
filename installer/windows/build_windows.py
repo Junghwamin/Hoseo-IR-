@@ -8,8 +8,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 
 """
@@ -261,7 +261,7 @@ def assemble_build():
 # ---------------------------------------------------------------------------
 def main():
     print("=" * 60)
-    print("  IR센터 연구실적 분석 포털 - Windows 빌드")
+    print("  연구실적 분석 포털 - Windows 빌드")
     print("=" * 60)
 
     print("\n[1/5] Embedded Python 다운로드...")

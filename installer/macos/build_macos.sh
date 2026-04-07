@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================================================
-# 호서대학교 IR센터 연구실적 분석 포털 - macOS 빌드 스크립트
+# 호서대학교 정화민 - 연구실적 분석 포털 - macOS 빌드 스크립트
 #
 # python-build-standalone(완전 독립형 Python)을 번들에 내장하여
 # 대상 Mac에 Python이 없어도 실행 가능한 .app + .dmg를 생성한다.
@@ -18,7 +18,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BUILD_DIR="$PROJECT_ROOT/build/macos"
-APP_NAME="IR센터 연구실적 분석 포털"
+APP_NAME="연구실적 분석 포털"
 APP_BUNDLE="$BUILD_DIR/${APP_NAME}.app"
 DIST_DIR="$PROJECT_ROOT/dist/macos"
 APP_VERSION="3.0"
@@ -40,7 +40,7 @@ fi
 PYTHON_URL="https://github.com/astral-sh/python-build-standalone/releases/download/${PYTHON_BUILD_TAG}/cpython-${PYTHON_VERSION}%2B${PYTHON_BUILD_TAG}-${PYTHON_TRIPLE}-install_only.tar.gz"
 
 echo "=========================================="
-echo "  IR센터 분석 포털 - macOS 빌드"
+echo "  연구실적 분석 포털 - macOS 빌드"
 echo "  아키텍처: $ARCH"
 echo "=========================================="
 

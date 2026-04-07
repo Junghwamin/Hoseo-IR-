@@ -8,12 +8,12 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 
 """
-IR센터 앱 종합 E2E 테스트 스크립트
+연구실적 분석 포털 종합 E2E 테스트 스크립트
 
 Streamlit 앱의 모든 핵심 모듈을 실제 데이터로 테스트한다.
 각 단계(1~5)의 데이터 흐름을 시뮬레이션하여
@@ -62,7 +62,7 @@ def warn(msg):
 
 # ================================================================
 print("\n" + "=" * 60)
-print("  IR센터 앱 종합 E2E 테스트")
+print("  연구실적 분석 포털 종합 E2E 테스트")
 print("=" * 60)
 
 # ================================================================

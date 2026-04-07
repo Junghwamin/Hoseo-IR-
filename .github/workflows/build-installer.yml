@@ -68,9 +68,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "IR센터 연구실적 분석 포털 ${{ github.ref_name }}"
+          name: "호서대학교 정화민 - 연구실적 분석 포털 ${{ github.ref_name }}"
           body: |
-            ## 호서대학교 IR센터 연구실적 분석 포털
+            ## 호서대학교 정화민 - 연구실적 분석 포털
 
             ### 설치 방법
             - **Windows**: `HoseoIR_Setup_v*.exe` 다운로드 후 실행

@@ -9,8 +9,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 """
 PostToolUse 훅: .py 파일 저장 후 requirements.txt 동기화 검사
@@ -24,7 +24,7 @@ import json
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path("C:/Users/정화민/Desktop/IR센터 MCP")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REQUIREMENTS = PROJECT_ROOT / "requirements.txt"
 
 # 표준 라이브러리 + 무시할 패키지 (설치 불필요)

@@ -4,11 +4,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>IR센터 연구실적 분석 포털</string>
+    <string>연구실적 분석 포털</string>
     <key>CFBundleDisplayName</key>
-    <string>호서대학교 IR센터</string>
+    <string>호서대학교 정화민 - 연구실적 분석 포털</string>
     <key>CFBundleIdentifier</key>
-    <string>kr.ac.hoseo.ir-portal</string>
+    <string>kr.junghwamin.research-portal</string>
     <key>CFBundleVersion</key>
     <string>3.0</string>
     <key>CFBundleShortVersionString</key>

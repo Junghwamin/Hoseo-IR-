@@ -9,8 +9,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 """
 PostToolUse 훅: .py 파일 저장 후 모듈 임포트 검사
@@ -24,7 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path("C:/Users/정화민/Desktop/IR센터 MCP")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # 임포트 검사 대상 모듈 (파일명 → 모듈 경로)
 MODULE_MAP = {

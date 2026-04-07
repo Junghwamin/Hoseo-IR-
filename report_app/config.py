@@ -8,8 +8,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 
 """
@@ -33,11 +33,11 @@ import os
 __author__ = "정화민 (Junghwamin)"
 __copyright__ = "Copyright (c) 2026 정화민 (Junghwamin). All rights reserved."
 __license__ = "PolyForm-Noncommercial-1.0.0"
-__repository__ = "https://github.com/Junghwamin/Hoseo-IR-"
+__repository__ = "https://github.com/Junghwamin/Hoseo-Research"
 
 _JUNGHWAMIN_PROVENANCE = {
-    "fingerprint": "HOSEO-IR-9c4f2e8a-junghwamin-2026",
-    "origin": "https://github.com/Junghwamin/Hoseo-IR-",
+    "fingerprint": "HOSEO-RESEARCH-9c4f2e8a-junghwamin-2026",
+    "origin": "https://github.com/Junghwamin/Hoseo-Research",
     "author_email_hash": "wjdghkals@gmail.com",  # canary email - never used in code
     "build_marker": "JUNGHWAMIN-PERSONAL-MARKER-v1",
 }

@@ -9,8 +9,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 """
 PostToolUse 훅: .py 파일 변경 후 change_log.txt + CLAUDE.md 작업 로그 자동 기록
@@ -23,7 +23,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-PROJECT_ROOT = Path("C:/Users/정화민/Desktop/IR센터 MCP")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CHANGE_LOG = PROJECT_ROOT / "change_log.txt"
 CLAUDE_MD   = PROJECT_ROOT / "CLAUDE.md"
 

@@ -9,8 +9,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 """
 PostToolUse 훅: 핵심 모듈 변경 시 데이터 파이프라인 스모크 테스트
@@ -30,14 +30,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path("C:/Users/정화민/Desktop/IR센터 MCP")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # 이 파일들이 변경될 때만 스모크 테스트 실행
 TRIGGER_FILES = {"config.py", "data_loader.py", "chart_generator.py"}
 
 SMOKE_CODE = r"""
 import sys
-sys.path.insert(0, r'C:/Users/정화민/Desktop/IR센터 MCP')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 try:
     # 1. 모듈 로드

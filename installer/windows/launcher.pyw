@@ -1,5 +1,5 @@
 """
-호서대학교 IR센터 연구실적 분석 포털 - Windows 런처
+호서대학교 정화민 - 연구실적 분석 포털 - Windows 런처
 
 바탕화면 아이콘에서 실행되는 진입점.
 콘솔 창 없이 Streamlit 서버를 시작하고 기본 브라우저를 연다.
@@ -47,7 +47,7 @@ def show_error(message):
     try:
         import ctypes
         ctypes.windll.user32.MessageBoxW(
-            0, message, "IR센터 포털 - 오류", 0x10,
+            0, message, "연구실적 분석 포털 - 오류", 0x10,
         )
     except Exception:
         pass

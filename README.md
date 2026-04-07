@@ -70,7 +70,7 @@ streamlit run report_app/app.py
 ## 디렉토리 구조
 
 ```
-IR센터 MCP/
+Hoseo-IR-/
 ├── README.md                              ← 이 파일
 ├── requirements.txt                       ← Python 의존 라이브러리
 ├── start_app.bat                          ← 앱 바로 실행 런처

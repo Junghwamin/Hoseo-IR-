@@ -8,8 +8,8 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 
 """Home 화면 렌더링 모듈.
@@ -43,7 +43,7 @@ def render_home() -> str | None:
     <div style="text-align:center; padding:2rem 0 1.5rem;">
         <div style="font-size:2.5rem; margin-bottom:0.5rem;">📊</div>
         <h2 style="font-size:1.5rem; font-weight:800; color:#1a56db; margin:0 0 0.5rem;">
-            호서대학교 IR센터 분석 포털
+            호서대학교 연구실적 분석 포털
         </h2>
         <p style="font-size:0.9375rem; color:#71717A; margin:0;">
             분석할 지표를 선택하세요

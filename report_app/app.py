@@ -8,12 +8,12 @@
 #     https://polyformproject.org/licenses/noncommercial/1.0.0
 #
 # Commercial use is strictly prohibited without prior written consent.
-# Repository: https://github.com/Junghwamin/Hoseo-IR-
-# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# Repository: https://github.com/Junghwamin/Hoseo-Research
+# HOSEO-RESEARCH-FINGERPRINT: do not remove this line (used for provenance tracking)
 # ============================================================================
 
 """
-호서대학교 IR센터 - 분석 포털 v5.0
+호서대학교 정화민 - 연구실적 분석 포털 v5.0
 
 Amplitude-Inspired 디자인 시스템.
 메인탭 구조로 향후 다른 분석 모듈(교육비환원율, 취업률 등) 확장 가능.
@@ -258,7 +258,7 @@ else:
 # ===========================================================================
 st.markdown(f"""
 <div class="ir-footer">
-  {UNIVERSITY} IR센터 · 분석 포털 v5.0 &nbsp;|&nbsp;
+  {UNIVERSITY} · 분석 포털 v5.0 &nbsp;|&nbsp;
   Powered by GPT-4o &amp; Streamlit
 </div>
 """, unsafe_allow_html=True)

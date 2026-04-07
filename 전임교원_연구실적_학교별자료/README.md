@@ -217,7 +217,7 @@ Raw data/
 ## 디렉토리 구조
 
 ```
-IR센터 MCP/
+Hoseo-IR-/
 ├── README.md                                    ← 이 파일
 ├── 전임교원_연구실적_전처리.py                  ← 메인 스크립트
 ├── requirements.txt                             ← Python 의존 라이브러리
@@ -324,10 +324,11 @@ IR센터 MCP/
 
 ## 연락처 및 지원
 
-이 도구는 대학IR센터의 연구 성과 분석 목적으로 개발되었습니다.
+이 도구는 정화민 (Junghwamin) 개인의 연구 성과 분석 도구로 개발되었습니다.
 
-문제 사항이나 개선 제안이 있으시면 스크립트 내 오류 메시지 및 경고를 참고하시기 바랍니다.
+문제 사항이나 개선 제안이 있으시면 [GitHub Issues](https://github.com/Junghwamin/Hoseo-Research/issues)를 통해 알려주세요.
 
 ## 라이선스
 
-내부 사용 전용
+Copyright (c) 2026 정화민 (Junghwamin). All rights reserved.
+PolyForm Noncommercial License 1.0.0 — 본 저장소 루트의 [LICENSE](../LICENSE) 파일 참조.
