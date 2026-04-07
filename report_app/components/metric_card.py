@@ -1,3 +1,17 @@
+# ============================================================================
+# Copyright (c) 2026 정화민 (Junghwamin), Hoseo University IR Center
+# All rights reserved.
+#
+# This file is part of the Hoseo University IR Center research portal.
+# Licensed under the PolyForm Noncommercial License 1.0.0.
+# See the LICENSE file in the project root, or visit:
+#     https://polyformproject.org/licenses/noncommercial/1.0.0
+#
+# Commercial use is strictly prohibited without prior written consent.
+# Repository: https://github.com/Junghwamin/Hoseo-IR-
+# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# ============================================================================
+
 # report_app/components/metric_card.py
 # Amplitude 스타일 KPI 메트릭 카드 컴포넌트
 # CSS 클래스 정의는 report_app/styles.py 에서 관리됨

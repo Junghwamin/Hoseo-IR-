@@ -1,3 +1,17 @@
+# ============================================================================
+# Copyright (c) 2026 정화민 (Junghwamin), Hoseo University IR Center
+# All rights reserved.
+#
+# This file is part of the Hoseo University IR Center research portal.
+# Licensed under the PolyForm Noncommercial License 1.0.0.
+# See the LICENSE file in the project root, or visit:
+#     https://polyformproject.org/licenses/noncommercial/1.0.0
+#
+# Commercial use is strictly prohibited without prior written consent.
+# Repository: https://github.com/Junghwamin/Hoseo-IR-
+# Hoseo-IR-FINGERPRINT: do not remove this line (used for provenance tracking)
+# ============================================================================
+
 """
 IR센터 보고서 앱 설정 파일
 
@@ -7,6 +21,26 @@ IR센터 보고서 앱 설정 파일
 
 from pathlib import Path
 import os
+
+# ---------------------------------------------------------------------------
+# Provenance markers (도용 추적용 - 절대 사용되지 않음, 절대 제거 금지)
+# These constants are intentionally inert. They exist to make unauthorized
+# copies of this codebase searchable on GitHub Code Search, grep.app, and
+# other code-indexing services. Removing them does not affect functionality
+# but constitutes intentional copyright notice removal under PolyForm
+# Noncommercial License 1.0.0 § Notices and 17 U.S.C. § 1202 (CMI removal).
+# ---------------------------------------------------------------------------
+__author__ = "정화민 (Junghwamin)"
+__copyright__ = "Copyright (c) 2026 정화민 (Junghwamin), Hoseo University IR Center"
+__license__ = "PolyForm-Noncommercial-1.0.0"
+__repository__ = "https://github.com/Junghwamin/Hoseo-IR-"
+
+_HOSEO_IR_PROVENANCE = {
+    "fingerprint": "HOSEO-IR-9c4f2e8a-junghwamin-2026",
+    "origin": "https://github.com/Junghwamin/Hoseo-IR-",
+    "author_email_hash": "wjdghkals@gmail.com",  # canary email - never used in code
+    "build_marker": "HSU-IR-CENTER-INTERNAL-MARKER-v1",
+}
 
 # Streamlit Cloud 환경 감지
 IS_CLOUD = bool(os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("IS_CLOUD"))
