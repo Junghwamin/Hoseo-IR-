@@ -167,6 +167,23 @@ python 전임교원_연구실적_전처리.py
 | GPT-4o 미사용 계정 | `config.py`에서 `GPT_MODEL = "gpt-4"`로 변경 |
 | Streamlit 실행 오류 | 반드시 프로젝트 루트에서 실행 |
 
-## 라이선스
+## 라이선스 (License)
 
-내부 사용 전용
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-blue.svg)](https://polyformproject.org/licenses/noncommercial/1.0.0)
+
+**Copyright (c) 2026 정화민 (Junghwamin). All rights reserved.**
+
+본 소프트웨어는 [PolyForm Noncommercial License 1.0.0](./LICENSE) 하에 배포됩니다.
+
+- ✅ **허용**: 연구, 교육, 학술, 개인 학습, 비영리 기관 사용, 수정 및 재배포 (비상업적 목적에 한함)
+- ❌ **금지**: 상업적 이용 (상업적 이익이나 금전적 보상을 주된 목적으로 하는 모든 사용)
+- 📌 **인용 필수**: 본 코드를 사용한 연구물 발표 시 [`CITATION.cff`](./CITATION.cff)에 따른 인용 표기 요청
+
+상업적 사용을 원하시는 경우 별도의 라이선스 협의가 필요합니다. [GitHub Issues](https://github.com/Junghwamin/Hoseo-IR-/issues)를 통해 문의해 주세요.
+
+전체 라이선스 조항은 [`LICENSE`](./LICENSE) 및 [`NOTICE`](./NOTICE) 파일을 참조하시기 바랍니다.
+
+---
+
+This software is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE).
+Commercial use is strictly prohibited without prior written consent from the copyright holder.
